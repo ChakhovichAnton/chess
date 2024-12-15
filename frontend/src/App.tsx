@@ -1,5 +1,12 @@
-const App = () => {
-  return <div>Hello world!</div>;
-};
+import Chessboard from './components/Chessboard'
 
-export default App;
+const App = () => {
+  return (
+    <div>
+      Hello world!
+      <Chessboard />
+    </div>
+  )
+}
+
+export default App
