@@ -23,3 +23,4 @@ To apply the migrations inside the Docker container, run the following command:
 
 Run the frontend in the `frontend` directory with the following command:
 `npm run dev`
+Access the frontend at `http://localhost:5000/`

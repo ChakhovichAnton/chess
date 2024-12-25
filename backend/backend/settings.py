@@ -29,11 +29,17 @@ DEBUG = os.getenv('DEBUG') == 'True'
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS')
 ALLOWED_HOSTS = ALLOWED_HOSTS.split(',') if ALLOWED_HOSTS else []
 
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS')
+CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS.split(',') if CORS_ALLOWED_ORIGINS else []
 
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
+    'rest_framework',
+    'rest_framework_simplejwt',
     'chess.apps.ChessConfig',
+    'account.apps.AccountConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -42,7 +48,17 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 ]
 
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
+}
+
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
