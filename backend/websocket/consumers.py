@@ -7,6 +7,8 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from chess.models import WaitingUserForGame, ChessGame
 
 class MatchConsumer(AsyncWebsocketConsumer):
+    """Matches two users and creates a game of chess between the users"""
+
     async def connect(self):
         user = self.scope["user"]
 

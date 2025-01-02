@@ -11,7 +11,7 @@ from chess.serializers import ChessGameSerializer
 class GameView(View):
     def get(self, request, id):
         game = ChessGame.objects.prefetch_related(
-            Prefetch('chess_moves', queryset=ChessMove.objects.all().order_by('move_time'))
+            Prefetch('chess_moves', queryset=ChessMove.objects.all().order_by('created_at'))
         ).get(id=id)
 
         serializer = ChessGameSerializer(game)
