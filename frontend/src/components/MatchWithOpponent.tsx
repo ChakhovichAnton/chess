@@ -44,7 +44,7 @@ const MatchWithOpponent = () => {
 
   return (
     <div>
-      <h1>Find Opponent</h1>
+      <h2>Find Opponent</h2>
       <p>{status}</p>
       <button disabled={status === 'connecting'} onClick={handleClick}>
         {status === 'startSearch' ? 'Find opponent' : 'Cancel finding'}
