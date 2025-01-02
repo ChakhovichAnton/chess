@@ -35,11 +35,19 @@ CORS_ALLOWED_ORIGINS = CORS_ALLOWED_ORIGINS.split(',') if CORS_ALLOWED_ORIGINS e
 # Application definition
 
 INSTALLED_APPS = [
+    # Installed apps
+    'channels',
     'corsheaders',
     'rest_framework',
     'rest_framework_simplejwt',
+    'daphne',
+
+    # Custom apps
     'chess.apps.ChessConfig',
     'account.apps.AccountConfig',
+    'websocket',
+
+    # Default apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -55,6 +63,18 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(
+                os.getenv('REDIS_HOST', '127.0.0.1'),
+                os.getenv('REDIS_PORT', 6379),
+            )],
+        },
+    },
 }
 
 MIDDLEWARE = [
@@ -87,6 +107,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
+ASGI_APPLICATION = 'backend.asgi.application'
 
 
 # Database

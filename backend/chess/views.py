@@ -1,20 +1,18 @@
-import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.views import View
+from django.db.models import Prefetch
 
-from chess.models import ChessGame
-
-# Create your views here.
+from chess.models import ChessGame, ChessMove
+from chess.serializers import ChessGameSerializer
 
 @method_decorator(csrf_exempt, name='dispatch')
 class GameView(View):
-    def get(self, request):
-        games = ChessGame.objects.all().values('id', 'name')
-        return JsonResponse(list(games), safe=False)
-    
-    def post(self, request):
-        data = json.loads(request.body)
-        game = ChessGame.objects.create(name=data['name'])
-        return JsonResponse({'message': 'Game created', 'game_id': game.id}, status=201)
+    def get(self, request, id):
+        game = ChessGame.objects.prefetch_related(
+            Prefetch('chess_moves', queryset=ChessMove.objects.all().order_by('move_time'))
+        ).get(id=id)
+
+        serializer = ChessGameSerializer(game)
+        return JsonResponse(serializer.data, safe=False)

@@ -8,6 +8,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
     env_file:
       - .env
+
+  redis:
+    image: redis:7.4.1
+    volumes:
+      - redis_data:/data
+    expose:
+      - ${REDIS_PORT}
+    env_file:
+      - .env
+  
   backend:
     build: backend
     ports:
@@ -16,6 +26,8 @@ services:
       - .env
     depends_on:
       - database
+      - redis
 
 volumes:
   postgres_data:
+  redis_data:

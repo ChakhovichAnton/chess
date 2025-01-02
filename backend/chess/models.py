@@ -1,6 +1,47 @@
 from django.db import models
+from django.contrib.auth.models import User
+from django.utils.timezone import now
 
-# Create your models here.
+class WaitingUserForGame(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    channel_name = models.CharField(max_length=255, unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 class ChessGame(models.Model):
-    name = models.CharField(max_length=255)
+    class GameStatus(models.TextChoices):
+        ONGOING = 'O', 'Ongoing'
+        ABANDONED = 'A', 'Abandoned'
+        WHITE_WIN = 'W', 'WhiteWin'
+        BLACK_WIN = 'B', 'BlackWin'
+        DRAW = 'D', 'Draw'
+    
+    class CurrentTurn(models.TextChoices):
+        WHITE = 'W', 'White'
+        BLACK = 'B', 'Black'
+
+    user_white = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user_white_id')
+    user_black = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user_black_id')
+
+    current_turn = models.CharField(max_length=1, choices=CurrentTurn, default=CurrentTurn.WHITE)
+    is_check = models.BooleanField(default=False)
+
+    status = models.CharField(max_length=1, choices=GameStatus, default=GameStatus.ONGOING)
+    checkmate = models.BooleanField(default=False)
+    stalemate = models.BooleanField(default=False)
+
+class ChessMove(models.Model):
+    game = models.ForeignKey(ChessGame, on_delete=models.CASCADE, related_name='chess_moves')
+    move_number = models.PositiveIntegerField()
+    move_text = models.CharField(max_length=10) # Chess move in algebraic notation; for example, e4 and Nf3
+    user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
+    move_time = models.DateTimeField(default=now)
+
+# TODO: add clocks
+"""
+class DrawOffers(models.Model):
+    game_id = models.ForeignKey(ChessGame, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, null=True, on_delete=models.SET_NULL) # Player who offered the draw
+    isActive = models.BooleanField(default=True) # Player has not cancelled the offer
+    accepted = models.BooleanField(default=False)
+"""
