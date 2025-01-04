@@ -131,14 +131,6 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
         return serializer.data
     
     @database_sync_to_async
-    def get_ongoing_game(self):
-        try:
-            game = ChessGame.objects.get(id=self.game_id, status=ChessGame.GameStatus.ONGOING)
-        except ChessGame.DoesNotExist:
-            game = None
-        return game
-    
-    @database_sync_to_async
     def make_move(self, move):
         with transaction.atomic():
             try:
