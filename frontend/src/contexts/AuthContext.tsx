@@ -6,12 +6,12 @@ import {
   useContext,
 } from 'react'
 import { jwtDecode } from 'jwt-decode'
-import { User } from '../types/models'
 import api from '../utils/axios'
 import {
   LOCAL_STORAGE_ACCESS_TOKEN,
   LOCAL_STORAGE_REFRESH_TOKEN,
 } from '../constants'
+import { User } from '../types'
 
 interface AuthContextType {
   user?: User
@@ -54,7 +54,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
 
       return true
     } catch (error: any) {
-      if (error.response.status === 401) return 'Invalid username or password'
+      if (error.response?.status === 401) return 'Invalid username or password'
 
       return 'An unexpected error occurred. Please try again.'
     }

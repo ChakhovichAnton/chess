@@ -1,10 +1,12 @@
 import json
-from django.db import connection
+import chess
+from django.db import connection, transaction
 from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from chess.models import WaitingUserForGame, ChessGame
+from chess_game.models import WaitingUserForGame, ChessGame, ChessMove
+from chess_game.serializers import ChessGameSerializer, ChessMoveSerializer
 
 class MatchConsumer(AsyncWebsocketConsumer):
     """Matches two users and creates a game of chess between the users"""
@@ -74,3 +76,111 @@ class MatchConsumer(AsyncWebsocketConsumer):
     def create_chess_game(self, user_white_id, user_black_id):
         game = ChessGame.objects.create(user_white_id=user_white_id, user_black_id=user_black_id)
         return game
+
+class ChessGameConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.game_group_name = None
+        self.game_id = self.scope['url_route']['kwargs']['game_id']
+        self.user = self.scope["user"]
+        
+        if not self.user.is_authenticated:
+            await self.close()
+            return
+        
+        game_state = await self.get_serialized_game_state()
+        if game_state is None:
+            await self.close()
+            return
+        
+        await self.accept()
+
+        # Join the game-specific group and send the current game state to the user
+        self.game_group_name = f"game_{self.game_id}"
+        await self.channel_layer.group_add(self.game_group_name, self.channel_name)
+        await self.send(text_data=json.dumps({"action": "gameState", "gameState": game_state}))
+
+    async def disconnect(self, close_code):
+        """Leave the current group"""
+        if self.game_group_name is not None:
+            await self.channel_layer.group_discard(self.game_group_name, self.channel_name)
+
+    async def receive(self, text_data):
+        data = json.loads(text_data)
+        action = data.get('action')
+
+        if action == 'move':
+            move = data.get('move')
+            res = await self.make_move(move)
+
+            if res['action'] == 'error':
+                await self.send(text_data=json.dumps(res))
+            elif res['action'] == 'newMove':
+                # Send move to other users
+                await self.channel_layer.group_send(self.game_group_name, res)
+
+    async def new_move(self, event):
+        # TODO: remove type field
+        await self.send(text_data=json.dumps(event))
+
+    @database_sync_to_async
+    def get_serialized_game_state(self):
+        game = ChessGame.objects.get_game_status_with_users_and_moves(self.game_id)
+        if game is None:
+            return None
+        serializer = ChessGameSerializer(game)
+        return serializer.data
+    
+    @database_sync_to_async
+    def get_ongoing_game(self):
+        try:
+            game = ChessGame.objects.get(id=self.game_id, status=ChessGame.GameStatus.ONGOING)
+        except ChessGame.DoesNotExist:
+            game = None
+        return game
+    
+    @database_sync_to_async
+    def make_move(self, move):
+        with transaction.atomic():
+            try:
+                game = ChessGame.objects.get(id=self.game_id, status=ChessGame.GameStatus.ONGOING)
+            except ChessGame.DoesNotExist:
+                return {'action': 'error', 'error': 'Invalid game'}
+                        
+            # TODO: validate that it is the turn of the user
+
+            try: # Validate move
+                board = chess.Board(game.fen) # TODO: take previous moves into account as they game can for example end due to repetition
+                board.push_san(move)
+            except:
+                return {'action': 'error', 'error': 'Invalid move'}
+
+            # Determine game status
+            outcome = board.outcome()
+            status = None
+            if outcome is not None:
+                if outcome.winner is None:
+                    status = ChessGame.GameStatus.DRAW
+                elif outcome.winner == chess.WHITE:
+                    status = ChessGame.GameStatus.WHITE_WIN
+                elif outcome.winner == chess.BLACK:
+                    status = ChessGame.GameStatus.BLACK_WIN
+
+            # Update database
+            new_fen = board.fen()
+            new_move = ChessMove(game_id=game.id, user_id=self.user.id, move_text=move)
+            new_move.save()
+
+            game.fen = new_fen
+            if status is not None:
+                game.status = status
+            game.save()
+
+            # TODO: send game state every x moves: await self.send_game_state(game)
+
+            serializer = ChessMoveSerializer(new_move)
+            return {
+                'type': 'new_move',
+                'action': 'newMove',
+                'newMove': serializer.data,
+                'gameStatus': None if status is None else status,
+            }

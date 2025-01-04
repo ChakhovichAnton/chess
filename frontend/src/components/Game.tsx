@@ -3,27 +3,57 @@ import { useParams } from 'react-router-dom'
 import api from '../utils/axios'
 import NotFound from './NotFound'
 import Chessboard from './Chessboard'
+import { ChessProvider } from '../contexts/ChessContext'
+import { isAxiosError } from 'axios'
+import ErrorPage from './ErrorPage'
+import Loading from './Loading'
+import { GameStatus, Game as GameType } from '../types'
+
+type Status = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
 
 const Game = () => {
   const { id: gameId } = useParams()
-  if (!gameId) return NotFound()
-
-  const [status, setStatus] = useState<'loading' | 'ready'>('loading')
+  const [status, setStatus] = useState<Status>(gameId ? 'loading' : 'notFound')
+  const [finishedGame, setFinishedGame] = useState<GameType | undefined>(
+    undefined,
+  )
 
   const getGameStatus = async () => {
-    const result = await api.get(`/api/chess/game/${gameId}/`)
+    try {
+      const result = await api.get(`/api/chess/game/${gameId}/`)
+      const game = result.data as GameType
 
-    console.log(result)
+      if (game.status === GameStatus.ONGOING) {
+        setStatus('live')
+      } else {
+        setFinishedGame(game)
+        setStatus('finished')
+      }
+    } catch (error) {
+      if (isAxiosError(error) && error.response?.status === 404) {
+        setStatus('notFound')
+        return
+      }
+      setStatus('error')
+    }
   }
 
   useEffect(() => {
     getGameStatus()
   }, [])
 
+  if (status === 'loading') return Loading()
+  if (status === 'notFound' || !gameId) return NotFound()
+  if (status === 'error') return ErrorPage()
+
+  if (status === 'finished') {
+    return <div>Game finished</div>
+  }
+
   return (
-    <div>
+    <ChessProvider gameId={gameId}>
       <Chessboard />
-    </div>
+    </ChessProvider>
   )
 }
 

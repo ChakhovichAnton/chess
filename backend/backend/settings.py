@@ -43,7 +43,7 @@ INSTALLED_APPS = [
     'daphne',
 
     # Custom apps
-    'chess.apps.ChessConfig',
+    'chess_game.apps.ChessGameConfig',
     'account.apps.AccountConfig',
     'websocket',
 

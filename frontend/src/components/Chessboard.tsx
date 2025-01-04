@@ -1,11 +1,14 @@
-import { Chess } from 'chess.js'
-import { useState } from 'react'
-
-const chess = new Chess()
+import { useEffect, useState } from 'react'
+import { useChess } from '../contexts/ChessContext'
 
 const Chessboard = () => {
+  const { makeMove, chess } = useChess()
   const [moveInput, setMoveInput] = useState('')
   const [boardAscii, setBoardAscii] = useState(chess.ascii())
+
+  useEffect(() => {
+    setBoardAscii(chess.ascii())
+  }, [chess])
 
   return (
     <div>
@@ -16,14 +19,7 @@ const Chessboard = () => {
         onChange={(e) => setMoveInput(e.target.value)}
         placeholder="Input chess move"
       />
-      <button
-        onClick={() => {
-          chess.move(moveInput)
-          setBoardAscii(chess.ascii())
-        }}
-      >
-        Move
-      </button>
+      <button onClick={() => makeMove(moveInput)}>Move</button>
     </div>
   )
 }

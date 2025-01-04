@@ -1,5 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
+import chess
+
+from .managers import ChessGameManager
 
 class WaitingUserForGame(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -7,6 +10,8 @@ class WaitingUserForGame(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 class ChessGame(models.Model):
+    objects = ChessGameManager()
+
     class GameStatus(models.TextChoices):
         ONGOING = 'O', 'Ongoing'
         WHITE_WIN = 'W', 'WhiteWin'
@@ -17,7 +22,7 @@ class ChessGame(models.Model):
     user_black = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='user_black_id')
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(max_length=1, choices=GameStatus, default=GameStatus.ONGOING)
-    fen = models.CharField(max_length=90) # The game as a FEN (Forsyth-Edwards Notation) string
+    fen = models.CharField(max_length=90, default=chess.STARTING_FEN) # The game as a FEN (Forsyth-Edwards Notation) string
 
 class ChessMove(models.Model):
     game = models.ForeignKey(ChessGame, on_delete=models.CASCADE, related_name='chess_moves')
