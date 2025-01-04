@@ -6,7 +6,7 @@ from channels.layers import get_channel_layer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
 from chess_game.models import WaitingUserForGame, ChessGame, ChessMove
-from chess_game.serializers import ChessGameSerializer, ChessMoveSerializer
+from chess_game.serializers import ChessGameSerializerWithMoves, ChessMoveSerializer
 
 class MatchConsumer(AsyncWebsocketConsumer):
     """Matches two users and creates a game of chess between the users"""
@@ -127,7 +127,7 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
         game = ChessGame.objects.get_game_status_with_users_and_moves(self.game_id)
         if game is None:
             return None
-        serializer = ChessGameSerializer(game)
+        serializer = ChessGameSerializerWithMoves(game)
         return serializer.data
     
     @database_sync_to_async

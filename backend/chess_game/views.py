@@ -1,17 +1,22 @@
 from django.http import JsonResponse, Http404
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.views import View
+from django.db.models import Q
 
 from .models import ChessGame
-from .serializers import ChessGameSerializer
+from .serializers import ChessGameSerializerWithMoves, ChessGameSerializer
 
-@method_decorator(csrf_exempt, name='dispatch')
 class GameView(View):
     def get(self, request, id):
         game = ChessGame.objects.get_game_status_with_users_and_moves(id)
 
         if game is None:
             raise Http404
-        serializer = ChessGameSerializer(game)
+        serializer = ChessGameSerializerWithMoves(game)
+        return JsonResponse(serializer.data, safe=False)
+
+class UserGameView(View):
+    def get(self, request, id):
+        games = ChessGame.objects.filter(Q(user_white_id=id) | Q(user_black_id=id))
+
+        serializer = ChessGameSerializer(games, many=True)
         return JsonResponse(serializer.data, safe=False)

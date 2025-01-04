@@ -15,11 +15,13 @@ import { User } from '../types'
 
 interface AuthContextType {
   user?: User
+  loading: boolean
   login: (username: string, password: string) => Promise<string | true>
   logout: () => void
 }
 
 const AuthContext = createContext<AuthContextType>({
+  loading: true,
   login: async () => '',
   logout: () => {},
 })
@@ -30,6 +32,7 @@ interface AuthProviderProps {
 
 export const AuthProvider = (props: AuthProviderProps) => {
   const [user, setUser] = useState<undefined | User>(undefined)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const token = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN)
@@ -37,6 +40,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
       const decoded = jwtDecode<User>(token)
       setUser(decoded)
     }
+    setLoading(false)
   }, [])
 
   const login = async (username: string, password: string) => {
@@ -68,7 +72,7 @@ export const AuthProvider = (props: AuthProviderProps) => {
   }
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {props.children}
     </AuthContext.Provider>
   )

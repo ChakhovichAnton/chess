@@ -38,8 +38,16 @@ class UserSerializer(CamelSnakeSerializer):
         model = User
         fields = ['id', 'username']
 
-class ChessGameSerializer(CamelSnakeSerializer):
+class ChessGameSerializerWithMoves(CamelSnakeSerializer):
     chess_moves = ChessMoveSerializer(many=True, read_only=True)
+    user_white = UserSerializer()
+    user_black = UserSerializer()
+
+    class Meta:
+        model = ChessGame
+        fields = '__all__'
+
+class ChessGameSerializer(CamelSnakeSerializer):
     user_white = UserSerializer()
     user_black = UserSerializer()
 

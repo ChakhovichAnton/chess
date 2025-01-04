@@ -1,4 +1,5 @@
 import MatchWithOpponent from './MatchWithOpponent'
+import GameTable from './GameTable'
 
 const LandingPage = () => {
   return (
@@ -6,6 +7,7 @@ const LandingPage = () => {
       <h1>Chess App</h1>
       <p>Start a game by finding an opponent</p>
       <MatchWithOpponent />
+      <GameTable />
     </div>
   )
 }
