@@ -114,11 +114,13 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
                 await self.send(text_data=json.dumps(res))
             elif res['action'] == 'newMove':
                 # Send move to other users
-                await self.channel_layer.group_send(self.game_group_name, res)
+                await self.channel_layer.group_send(self.game_group_name, {
+                    'type': 'new_move',
+                    'message': json.dumps(res),
+                })
 
     async def new_move(self, event):
-        # TODO: remove type field
-        await self.send(text_data=json.dumps(event))
+        await self.send(text_data=event["message"])
 
     @database_sync_to_async
     def get_serialized_game_state(self):
@@ -174,7 +176,6 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
 
             serializer = ChessMoveSerializer(new_move)
             return {
-                'type': 'new_move',
                 'action': 'newMove',
                 'newMove': serializer.data,
                 'gameStatus': None if status is None else status,
