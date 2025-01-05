@@ -1,6 +1,6 @@
 import { useState } from 'react'
-import api from '../utils/axios'
 import axios from 'axios'
+import api from '../../utils/axios'
 
 const Register = () => {
   const [username, setUsername] = useState('')
