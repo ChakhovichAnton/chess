@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { useChess } from '../contexts/ChessContext'
 
 const Chessboard = () => {
-  const { makeMove, chess } = useChess()
+  const { makeMove, chess, gameState } = useChess()
   const [moveInput, setMoveInput] = useState('')
   const [boardAscii, setBoardAscii] = useState(chess.ascii())
 
@@ -12,7 +12,9 @@ const Chessboard = () => {
 
   return (
     <div>
+      <p>{gameState?.userBlack.username}</p>
       <pre>{boardAscii}</pre>
+      <p>{gameState?.userWhite.username}</p>
       <p>Moves: {chess.moves().reduce((m1, m2) => m1 + ' ' + m2)}</p>
       <input
         value={moveInput}

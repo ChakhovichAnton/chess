@@ -83,13 +83,8 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
         self.game_id = self.scope['url_route']['kwargs']['game_id']
         self.user = self.scope["user"]
         
-        if not self.user.is_authenticated:
-            await self.close()
-            return
-        
         game_state = await self.get_serialized_game_state()
         if game_state is None:
-            await self.close()
             return
         
         await self.accept()
@@ -105,6 +100,9 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
             await self.channel_layer.group_discard(self.game_group_name, self.channel_name)
 
     async def receive(self, text_data):
+        if not self.user.is_authenticated:
+            return
+
         data = json.loads(text_data)
         action = data.get('action')
 
@@ -137,12 +135,17 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
                 game = ChessGame.objects.get(id=self.game_id, status=ChessGame.GameStatus.ONGOING)
             except ChessGame.DoesNotExist:
                 return {'action': 'error', 'error': 'Invalid game'}
-                        
-            # TODO: validate that it is the turn of the user
-
+            
             try: # Validate move
                 board = chess.Board(game.fen) # TODO: take previous moves into account as they game can for example end due to repetition
-                board.push_san(move)
+                isWhiteTurn = board.turn == chess.WHITE
+
+                if isWhiteTurn and self.user.id == game.user_white.id:
+                    board.push_san(move)
+                elif self.user.id == game.user_black.id and not isWhiteTurn:
+                    board.push_san(move)
+                else:
+                    return {'action': 'error', 'error': 'Invalid move'}
             except:
                 return {'action': 'error', 'error': 'Invalid move'}
 

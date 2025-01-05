@@ -1,8 +1,6 @@
 import axios from 'axios'
-import {
-  LOCAL_STORAGE_ACCESS_TOKEN,
-  LOCAL_STORAGE_REFRESH_TOKEN,
-} from '../constants'
+import { LOCAL_STORAGE_ACCESS_TOKEN } from '../constants'
+import { refreshAccessToken } from './refreshAccessToken'
 
 const BACKEND_URL = 'http://localhost:8000'
 
@@ -36,21 +34,11 @@ api.interceptors.response.use(
 
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true
-      const refreshToken = localStorage.getItem(LOCAL_STORAGE_REFRESH_TOKEN)
 
-      if (!refreshToken) return
-
-      try {
-        const { data } = await axios.post('/api/account/token/refresh/', {
-          refresh: refreshToken,
-        })
-
-        localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN, data.access)
-        api.defaults.headers.Authorization = `Bearer ${data.access}`
+      const accessToken = await refreshAccessToken()
+      if (accessToken) {
+        api.defaults.headers.Authorization = `Bearer ${accessToken}`
         return api(originalRequest)
-      } catch (err) {
-        localStorage.removeItem(LOCAL_STORAGE_ACCESS_TOKEN)
-        localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN)
       }
     }
 

@@ -2,11 +2,15 @@ import { createContext, useState, useContext, useEffect, useRef } from 'react'
 import { Chess } from 'chess.js'
 import { Game, Move } from '../types'
 import { LOCAL_STORAGE_ACCESS_TOKEN } from '../constants'
+import { refreshAccessToken } from '../utils/refreshAccessToken'
+
+type Status = 'connecting' | 'connected' | 'error' | 'closed'
 
 interface ChessContextProps {
   gameState?: Game
   makeMove: (move: string) => void
   chess: Chess
+  status: Status
 }
 
 const ChessContext = createContext<ChessContextProps | undefined>(undefined)
@@ -19,18 +23,16 @@ interface ChessProviderProps {
 export const ChessProvider: React.FC<ChessProviderProps> = (props) => {
   const [gameState, setGameState] = useState<Game | undefined>(undefined)
   const socketRef = useRef<WebSocket | undefined>(undefined)
+  const retryRef = useRef(false) // If connection retry has been attempted
   const [chess, setChess] = useState(new Chess())
+  const [status, setStatus] = useState<Status>('connecting')
 
-  useEffect(() => {
-    if (socketRef.current) return
-
-    const ws = new WebSocket(
+  const initializeSocket = () => {
+    socketRef.current = new WebSocket(
       `ws://localhost:8000/ws/game/${props.gameId}/?token=${localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN)}`,
     )
-    ws.onopen = () => {
-      console.log('WebSocket connected to game:', props.gameId)
-    }
-    ws.onmessage = (event) => {
+    socketRef.current.onopen = () => setStatus('connected')
+    socketRef.current.onmessage = (event) => {
       const data = JSON.parse(event.data)
 
       if (data.action === 'gameState') {
@@ -38,6 +40,7 @@ export const ChessProvider: React.FC<ChessProviderProps> = (props) => {
 
         const newChess = new Chess(game.fen)
         setChess(newChess)
+        setGameState(game)
       } else if (data.action === 'newMove') {
         const newMove = data.newMove as Move
 
@@ -63,15 +66,24 @@ export const ChessProvider: React.FC<ChessProviderProps> = (props) => {
         // TODO: end game
       }
     }
-    ws.onerror = (e) => {
-      console.log(e)
+    socketRef.current.onerror = () => setStatus('error')
+    socketRef.current.onclose = async (closeEvent) => {
+      if (closeEvent.code === 1006 && !retryRef.current) {
+        await refreshAccessToken()
+        initializeSocket()
+        retryRef.current = true
+      }
     }
+  }
 
-    socketRef.current = ws
+  useEffect(() => {
+    if (socketRef.current) return
+    initializeSocket()
 
     return () => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close()
+      if (socketRef.current?.readyState === WebSocket.OPEN) {
+        setStatus('closed')
+        socketRef.current.close()
       }
     }
   }, [])
@@ -86,7 +98,7 @@ export const ChessProvider: React.FC<ChessProviderProps> = (props) => {
   }
 
   return (
-    <ChessContext.Provider value={{ gameState, makeMove, chess }}>
+    <ChessContext.Provider value={{ gameState, makeMove, chess, status }}>
       {props.children}
     </ChessContext.Provider>
   )
