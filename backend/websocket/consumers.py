@@ -178,5 +178,6 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
             return {
                 'action': 'newMove',
                 'newMove': serializer.data,
+                'fen': new_fen,
                 'gameStatus': None if status is None else status,
             }

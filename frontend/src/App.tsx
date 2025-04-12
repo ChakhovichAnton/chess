@@ -4,7 +4,7 @@ import Login from './components/auth/Login'
 import Register from './components/auth/Register'
 import ProtectedRoute from './components/ProtectedRoute'
 import { LOCAL_STORAGE_ACCESS_TOKEN } from './constants'
-import Game from './components/Game'
+import ChessGame from './components/chessGame/ChessGame'
 import Navbar from './components/Navbar'
 import LandingPage from './components/LandingPage'
 
@@ -20,7 +20,7 @@ const App = () => {
           path="/game/:id"
           element={
             <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <Game />
+              <ChessGame />
             </ProtectedRoute>
           }
         />

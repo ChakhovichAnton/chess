@@ -21,9 +21,11 @@ export interface Move {
 export interface Game {
   id: number
   chessMoves: Move[]
-  userWhite: { id: number; username: string }
-  userBlack: { id: number; username: string }
+  userWhite: User
+  userBlack: User
   createdAt: string
   fen: string
   status: GameStatus
 }
+
+export type BoardOrientation = 'white' | 'black'
