@@ -3,6 +3,10 @@ export interface User {
   username: string
 }
 
+export interface TokenUser extends User {
+  exp: number
+}
+
 export enum GameStatus {
   ONGOING = 'O',
   WHITE_WIN = 'W',

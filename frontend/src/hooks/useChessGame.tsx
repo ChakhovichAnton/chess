@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Game, GameStatus, Move } from '../types'
 import { LOCAL_STORAGE_ACCESS_TOKEN } from '../constants'
-import { refreshAccessToken } from '../utils/refreshAccessToken'
+import { refreshAccessToken } from '../utils/accessToken'
 import { validateChessMove } from '../utils/validators/chess'
 import { isAxiosError } from 'axios'
 import api from '../utils/axios'

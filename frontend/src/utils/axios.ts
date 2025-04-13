@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { LOCAL_STORAGE_ACCESS_TOKEN } from '../constants'
-import { refreshAccessToken } from './refreshAccessToken'
+import { refreshAccessToken } from './accessToken'
 
 const BACKEND_URL = 'http://localhost:8000'
 

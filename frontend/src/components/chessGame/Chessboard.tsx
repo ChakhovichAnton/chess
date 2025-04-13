@@ -63,6 +63,7 @@ const Chessboard = (props: ChessboardProps) => {
         boardWidth={400}
         onPieceDrop={onDrop}
         isDraggablePiece={() => isPlayerTurn}
+        animationDuration={0}
       />
       <button
         onClick={() => {

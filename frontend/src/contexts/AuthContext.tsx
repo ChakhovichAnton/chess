@@ -12,6 +12,8 @@ import {
   LOCAL_STORAGE_REFRESH_TOKEN,
 } from '../constants'
 import { User } from '../types'
+import { refreshAccessToken } from '../utils/accessToken'
+import { validateToken } from '../utils/accessToken'
 
 interface AuthContextType {
   user?: User
@@ -35,11 +37,22 @@ export const AuthProvider = (props: AuthProviderProps) => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    const token = localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN)
-    if (token) {
-      const decoded = jwtDecode<User>(token)
-      setUser(decoded)
+    const refreshToken = async () => {
+      await refreshAccessToken()
+      const validated = validateToken()
+
+      if (validated?.decoded) setUser(validated.decoded)
+      setLoading(false)
     }
+
+    const validated = validateToken()
+    // If token exists but it is expired, refresh the token and validate the new token
+    if (validated && !validated.isValid) {
+      refreshToken()
+      return
+    }
+
+    if (validated?.decoded) setUser(validated.decoded)
     setLoading(false)
   }, [])
 
