@@ -14,20 +14,22 @@ const App = () => {
   return (
     <BrowserRouter>
       <Navbar />
-      <Routes>
-        <Route path="/" element={<LandingPage />} />
-        <Route
-          path="/game/:id"
-          element={
-            <ProtectedRoute isAuthenticated={isAuthenticated}>
-              <ChessGame />
-            </ProtectedRoute>
-          }
-        />
-        <Route path="/login" element={<Login />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <div className="pt-10 mb-2">
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route
+            path="/game/:id"
+            element={
+              <ProtectedRoute isAuthenticated={isAuthenticated}>
+                <ChessGame />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </div>
     </BrowserRouter>
   )
 }

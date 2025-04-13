@@ -56,25 +56,38 @@ const Chessboard = (props: ChessboardProps) => {
   }
 
   return (
-    <div>
-      <ReactChessboard
-        position={props.game ? chess.fen() : undefined} // To rerender the game whenever the game is loaded
-        boardOrientation={boardOrientation}
-        boardWidth={400}
-        onPieceDrop={onDrop}
-        isDraggablePiece={() => isPlayerTurn}
-        animationDuration={0}
-      />
-      <button
-        onClick={() => {
-          setBoardOrientation((prev) => (prev === 'black' ? 'white' : 'black'))
-        }}
-      >
-        Toggle Board Orientation
-      </button>
-      {props.game?.chessMoves.map((move) => (
-        <p key={move.id}>{move.moveText}</p>
-      ))}
+    <div className="flex justify-center">
+      <div className="max-w-6xl w-full flex gap-20">
+        <div>
+          <ReactChessboard
+            position={props.game ? chess.fen() : undefined} // To rerender the game whenever the game is loaded
+            boardOrientation={boardOrientation}
+            boardWidth={400}
+            onPieceDrop={onDrop}
+            isDraggablePiece={() => isPlayerTurn}
+            animationDuration={0}
+          />
+          <button
+            onClick={() => {
+              setBoardOrientation((prev) =>
+                prev === 'black' ? 'white' : 'black',
+              )
+            }}
+            className="hover:cursor-pointer"
+          >
+            Toggle Board Orientation
+          </button>
+        </div>
+        <div className="grid grid-cols-2 max-h-[500px] overflow-y-scroll">
+          <h3 className="font-semibold pr-2 border-b-2">White</h3>
+          <h3 className="font-semibold border-b-2">Black</h3>
+          {props.game?.chessMoves.map((move) => (
+            <p key={move.id} className="border-b-2">
+              {move.moveText}
+            </p>
+          ))}
+        </div>
+      </div>
     </div>
   )
 }

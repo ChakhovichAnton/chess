@@ -26,18 +26,26 @@ const GameTable = () => {
 
   return (
     <div>
-      <h2>Games</h2>
+      <h2 className="text-3xl font-semibold">Games</h2>
       {loading ? (
         <p>Loading ...</p>
       ) : (
-        <>
+        <div className="flex flex-col gap-2 w-full">
           {games.map((game) => (
-            <a href={`/game/${game.id}`} key={game.id}>
-              White: {game.userWhite.username}; Black: {game.userBlack.username}
-              ; Status: {game.status}
+            <a
+              href={`/game/${game.id}`}
+              key={game.id}
+              className="bg-slate-200 hover:bg-slate-300 items-center p-2 w-full grid grid-cols-3 rounded"
+            >
+              <p>{game.status}</p>
+              <div className="flex flex-col">
+                <p>White: {game.userWhite.username}</p>
+                <p>Black: {game.userBlack.username}</p>
+              </div>
+              <p>{new Date(game.createdAt).toDateString()}</p>
             </a>
           ))}
-        </>
+        </div>
       )}
     </div>
   )
