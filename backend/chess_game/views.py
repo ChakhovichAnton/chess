@@ -1,6 +1,6 @@
 from django.http import JsonResponse, Http404
 from django.views import View
-from django.db.models import Q
+from django.db.models import Q, Count
 
 from .models import ChessGame
 from .serializers import ChessGameSerializerWithMoves, ChessGameSerializer
@@ -16,7 +16,7 @@ class GameView(View):
 
 class UserGameView(View):
     def get(self, request, id):
-        games = ChessGame.objects.filter(Q(user_white_id=id) | Q(user_black_id=id))
+        games = ChessGame.objects.filter(Q(user_white_id=id) | Q(user_black_id=id)).annotate(move_count=Count('chess_moves'))
 
         serializer = ChessGameSerializer(games, many=True)
         return JsonResponse(serializer.data, safe=False)

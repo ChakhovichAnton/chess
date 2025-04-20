@@ -35,13 +35,14 @@ const GameTable = () => {
             <a
               href={`/game/${game.id}`}
               key={game.id}
-              className="bg-slate-200 hover:bg-slate-300 items-center p-2 w-full grid grid-cols-3 rounded"
+              className="bg-slate-200 hover:bg-slate-300 items-center p-2 w-full grid grid-cols-4 rounded"
             >
               <p>{game.status}</p>
               <div className="flex flex-col">
                 <p>White: {game.userWhite.username}</p>
                 <p>Black: {game.userBlack.username}</p>
               </div>
+              <p>{game.moveCount}</p>
               <p>{new Date(game.createdAt).toDateString()}</p>
             </a>
           ))}

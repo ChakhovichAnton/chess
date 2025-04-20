@@ -24,12 +24,16 @@ export interface Move {
 
 export interface Game {
   id: number
-  chessMoves: Move[]
+  moveCount: number
   userWhite: User
   userBlack: User
   createdAt: string
   fen: string
   status: GameStatus
+}
+
+export interface GameWithMoves extends Omit<Game, 'moveCount'> {
+  chessMoves: Move[]
 }
 
 export type BoardOrientation = 'white' | 'black'

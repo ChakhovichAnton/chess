@@ -1,18 +1,18 @@
 import { Chessboard as ReactChessboard } from 'react-chessboard'
-import { BoardOrientation, Game } from '../../types'
+import { BoardOrientation, GameWithMoves } from '../../types'
 import { useEffect, useState } from 'react'
 import { Chess } from 'chess.js'
-import { Square } from 'react-chessboard/dist/chessboard/types'
+import { Piece, Square } from 'react-chessboard/dist/chessboard/types'
 import { useAuth } from '../../contexts/AuthContext'
 
 interface ChessboardProps {
-  game?: Game
+  game?: GameWithMoves
   isLiveGame: boolean
   makeMove: (move: string) => void
 }
 
 const Chessboard = (props: ChessboardProps) => {
-  const { user } = useAuth()
+  const { user, loading } = useAuth()
 
   const [chess, setChess] = useState(new Chess(props.game?.fen))
   const [isPlayerTurn, setIsPlayerTurn] = useState(true)
@@ -55,6 +55,18 @@ const Chessboard = (props: ChessboardProps) => {
     }
   }
 
+  const isDraggablePiece = ({ piece }: { piece: Piece }) => {
+    if (loading || !user) return false
+
+    // Checking if the piece belongs to the player
+    const isBlack =
+      user.id === props.game?.userBlack.id && piece.startsWith('b')
+    const isWhite =
+      user.id === props.game?.userWhite.id && piece.startsWith('w')
+
+    return isPlayerTurn && (isBlack || isWhite)
+  }
+
   return (
     <div className="flex justify-center">
       <div className="max-w-6xl w-full flex gap-20">
@@ -64,7 +76,7 @@ const Chessboard = (props: ChessboardProps) => {
             boardOrientation={boardOrientation}
             boardWidth={400}
             onPieceDrop={onDrop}
-            isDraggablePiece={() => isPlayerTurn}
+            isDraggablePiece={isDraggablePiece}
             animationDuration={0}
           />
           <button

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { Game, GameStatus, Move } from '../types'
+import { GameWithMoves, GameStatus, Move } from '../types'
 import { LOCAL_STORAGE_ACCESS_TOKEN } from '../constants'
 import { refreshAccessToken } from '../utils/accessToken'
 import { validateChessMove } from '../utils/validators/chess'
@@ -10,7 +10,7 @@ type Status = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
 
 export const useChessGame = (gameId: number) => {
   const [status, setStatus] = useState<Status>('loading')
-  const [gameState, setGameState] = useState<Game | undefined>(undefined)
+  const [gameState, setGameState] = useState<GameWithMoves | undefined>(undefined)
   const socketRef = useRef<WebSocket | undefined>(undefined)
   const retryRef = useRef(false) // If connection retry has been attempted; for example, due to invalid credentials
 
@@ -23,7 +23,7 @@ export const useChessGame = (gameId: number) => {
       retryRef.current = false // Allow a retry after a new message
 
       if (data.action === 'gameState') {
-        const game = data.gameState as Game
+        const game = data.gameState as GameWithMoves
         setGameState(game)
       } else if (data.action === 'newMove') {
         const newMove = data.newMove as Move
@@ -43,7 +43,7 @@ export const useChessGame = (gameId: number) => {
             ...prev,
             chessMoves: [...prev.chessMoves, newMove],
             fen: data.fen as string,
-          } satisfies Game
+          } satisfies GameWithMoves
         })
       } else if (data.action === 'error') {
         //const errorMessage = data.error as string
@@ -86,7 +86,7 @@ export const useChessGame = (gameId: number) => {
     const initChessGame = async () => {
       try {
         const result = await api.get(`/api/chess/game/${gameId}/`)
-        const game = result.data as Game
+        const game = result.data as GameWithMoves
 
         if (game.status === GameStatus.ONGOING) {
           setStatus('live')

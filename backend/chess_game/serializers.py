@@ -1,6 +1,6 @@
 import re
 from django.contrib.auth.models import User
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, SerializerMethodField
 from chess_game.models import ChessGame, ChessMove
 
 def snake_to_camel(snake_str):
@@ -50,7 +50,11 @@ class ChessGameSerializerWithMoves(CamelSnakeSerializer):
 class ChessGameSerializer(CamelSnakeSerializer):
     user_white = UserSerializer()
     user_black = UserSerializer()
+    move_count = SerializerMethodField()
 
     class Meta:
         model = ChessGame
         fields = '__all__'
+
+    def get_move_count(self, obj):
+        return obj.move_count
