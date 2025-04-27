@@ -44,7 +44,7 @@ const MoveTable: FC<MoveTableProps> = (props) => {
               <td>{index + 1}.</td>
               <td className="text-center">{move[0].moveText}</td>
               {move[1] ? (
-                <td className="text-center">{move[0].moveText}</td>
+                <td className="text-center">{move[1].moveText}</td>
               ) : (
                 <td></td>
               )}

@@ -5,6 +5,7 @@ import Loading from './specialPages/Loading'
 import Chessboard from '../components/chess/Chessboard'
 import { UseChessGame } from '../hooks/useChessGame'
 import { validateInteger } from '../utils/validators/integer'
+import MoveTable from '../components/chess/MoveTable'
 
 const ChessGamePage = () => {
   // Validate gameId
@@ -19,11 +20,16 @@ const ChessGamePage = () => {
   if (status === 'loading') return Loading()
 
   return (
-    <Chessboard
-      game={gameState}
-      isLiveGame={status === 'live'}
-      makeMove={makeMove}
-    />
+    <div className="flex justify-center">
+      <div className="max-w-6xl w-full flex gap-20">
+        <Chessboard
+          game={gameState}
+          isLiveGame={status === 'live'}
+          makeMove={makeMove}
+        />
+        <MoveTable game={gameState} />
+      </div>
+    </div>
   )
 }
 

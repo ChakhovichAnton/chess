@@ -1,7 +1,7 @@
 import { Dispatch, FC, SetStateAction } from 'react'
 import { BoardOrientation } from '../../types'
 import { HiArrowsUpDown } from 'react-icons/hi2'
-import Tooltip from '../ToolTip'
+import Tooltip from '../Tooltip'
 
 interface ToggleBoardDirectionButtonProps {
   setBoardOrientation: Dispatch<SetStateAction<BoardOrientation>>
