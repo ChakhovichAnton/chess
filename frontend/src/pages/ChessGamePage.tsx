@@ -3,7 +3,7 @@ import NotFound from './specialPages/NotFound'
 import ErrorPage from './specialPages/ErrorPage'
 import Loading from './specialPages/Loading'
 import Chessboard from '../components/chess/Chessboard'
-import { useChessGame } from '../hooks/useChessGame'
+import { UseChessGame } from '../hooks/useChessGame'
 import { validateInteger } from '../utils/validators/integer'
 
 const ChessGamePage = () => {
@@ -12,7 +12,7 @@ const ChessGamePage = () => {
   const gameId = validateInteger(gameIdString)
   if (gameId === undefined) return NotFound()
 
-  const { gameState, makeMove, status } = useChessGame(gameId)
+  const { gameState, makeMove, status } = UseChessGame(gameId)
 
   if (status === 'notFound') return NotFound()
   if (status === 'error') return ErrorPage()

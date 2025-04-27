@@ -18,9 +18,7 @@ const MoveTable: FC<MoveTableProps> = (props) => {
     }
   }, [props.game])
 
-  if (!props.game) {
-    return <div>Loading...</div>
-  }
+  if (!props.game) return <></>
 
   return (
     <div ref={scrollRef} className="max-h-[500px] overflow-y-scroll">
@@ -45,7 +43,11 @@ const MoveTable: FC<MoveTableProps> = (props) => {
             >
               <td>{index + 1}.</td>
               <td className="text-center">{move[0].moveText}</td>
-              {move[1] ? <td className="text-center">{move[0].moveText}</td> : <td></td>}
+              {move[1] ? (
+                <td className="text-center">{move[0].moveText}</td>
+              ) : (
+                <td></td>
+              )}
             </tr>
           ))}
         </tbody>

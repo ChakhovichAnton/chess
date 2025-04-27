@@ -1,87 +1,74 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { GameWithMoves, GameStatus, Move } from '../types'
-import { LOCAL_STORAGE_ACCESS_TOKEN } from '../constants'
-import { refreshAccessToken } from '../utils/accessToken'
 import { validateChessMove } from '../utils/validators/chess'
 import { isAxiosError } from 'axios'
 import api from '../utils/axios'
+import { UseWebSocket } from './useWebSocket'
 
 type Status = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
 
-export const useChessGame = (gameId: number) => {
+export const UseChessGame = (gameId: number) => {
   const [status, setStatus] = useState<Status>('loading')
-  const [gameState, setGameState] = useState<GameWithMoves | undefined>(undefined)
-  const socketRef = useRef<WebSocket | undefined>(undefined)
-  const retryRef = useRef(false) // If connection retry has been attempted; for example, due to invalid credentials
+  const [gameState, setGameState] = useState<GameWithMoves | undefined>(
+    undefined,
+  )
 
-  const initializeSocket = () => {
-    socketRef.current = new WebSocket(
-      `ws://localhost:8000/ws/game/${gameId}/?token=${localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN)}`,
-    )
-    socketRef.current.onmessage = (event) => {
-      const data = JSON.parse(event.data)
-      retryRef.current = false // Allow a retry after a new message
+  const onMessage = (event: MessageEvent<any>) => {
+    const data = JSON.parse(event.data)
 
-      if (data.action === 'gameState') {
-        const game = data.gameState as GameWithMoves
-        setGameState(game)
-      } else if (data.action === 'newMove') {
-        const newMove = data.newMove as Move
+    if (data.action === 'gameState') {
+      const game = data.gameState as GameWithMoves
+      setGameState(game)
+    } else if (data.action === 'newMove') {
+      const newMove = data.newMove as Move
 
-        setGameState((prev) => {
-          if (!prev) return
-          const moveIsValid = validateChessMove(prev.fen, newMove.moveText)
+      setGameState((prev) => {
+        if (!prev) return
+        const moveIsValid = validateChessMove(prev.fen, newMove.moveText)
 
-          // If move is invalid, reopen the connection
-          if (!moveIsValid) {
-            socketRef.current?.close()
-            initializeSocket()
-            return
-          }
+        // If move is invalid, reopen the connection
+        if (!moveIsValid) {
+          disconnect()
+          connect()
+          return
+        }
 
-          return {
-            ...prev,
-            chessMoves: [...prev.chessMoves, newMove],
-            fen: data.fen as string,
-          } satisfies GameWithMoves
-        })
-      } else if (data.action === 'error') {
-        //const errorMessage = data.error as string
-        // TODO: show error
-      } else if (data.action === 'gameOver') {
-        // TODO: end game
-      }
-    }
-
-    socketRef.current.onerror = () => {
-      setStatus('error')
-      setGameState(undefined)
-    }
-    socketRef.current.onclose = async (closeEvent) => {
-      // If event code is 1006, refresh access token and reconnect
-      if (closeEvent.code === 1006 && !retryRef.current) {
-        setStatus('loading')
-        setGameState(undefined)
-        await refreshAccessToken()
-        initializeSocket()
-        retryRef.current = true
-      }
+        return {
+          ...prev,
+          chessMoves: [...prev.chessMoves, newMove],
+          fen: data.fen as string,
+        } satisfies GameWithMoves
+      })
+    } else if (data.action === 'error') {
+      //const errorMessage = data.error as string
+      // TODO: show error
+    } else if (data.action === 'gameOver') {
+      // TODO: end game
     }
   }
 
-  // Initialize WebSocket connection only if game is live to make sure that the WebSocket
-  // connection is initialized only once
-  useEffect(() => {
-    if (status !== 'live' || socketRef.current) return
+  const onClose = () => {
+    setStatus('loading')
+    setGameState(undefined)
+  }
 
-    initializeSocket()
-    return () => socketRef.current?.close()
-  }, [gameId, status])
+  const onError = () => {
+    setStatus('error')
+    setGameState(undefined)
+  }
+
+  const { connect, disconnect, sendMessage } = UseWebSocket(
+    `game/${gameId}`,
+    onMessage,
+    status === 'live', // Connect automatically
+    onClose,
+    onError,
+  )
 
   // Check if game is live or finished
   useEffect(() => {
-    // Return if socket already exists
-    if (socketRef.current) return
+    // Do not initialize another connection if game is already live
+    if (status === 'live') return
 
     const initChessGame = async () => {
       try {
@@ -107,11 +94,7 @@ export const useChessGame = (gameId: number) => {
   }, [gameId])
 
   const makeMove = (move: string) => {
-    if (socketRef.current?.readyState === WebSocket.OPEN && status === 'live') {
-      socketRef.current.send(JSON.stringify({ action: 'move', move }))
-    } else {
-      // TODO: notify user that move could not be made
-    }
+    sendMessage({ action: 'move', move })
   }
 
   return { gameState, makeMove, status }
