@@ -1,35 +1,59 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import NotFound from './components/specialPages/NotFound'
-import Login from './components/auth/Login'
-import Register from './components/auth/Register'
+import NotFound from './pages/specialPages/NotFound'
 import ProtectedRoute from './components/ProtectedRoute'
-import { LOCAL_STORAGE_ACCESS_TOKEN } from './constants'
-import ChessGame from './components/chessGame/ChessGame'
-import Navbar from './components/Navbar'
-import LandingPage from './components/LandingPage'
+import ChessGamePage from './pages/ChessGamePage'
+import LandingPage from './pages/LandingPage'
+import Login from './pages/Login'
+import Register from './pages/Register'
+import DefaultLayout from './components/DefaultLayout'
 
 const App = () => {
-  const isAuthenticated = !!localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN)
-
   return (
     <BrowserRouter>
-      <Navbar />
-      <div className="pt-10 mb-2">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route
-            path="/game/:id"
-            element={
-              <ProtectedRoute isAuthenticated={isAuthenticated}>
-                <ChessGame />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </div>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <DefaultLayout>
+              <LandingPage />
+            </DefaultLayout>
+          }
+        />
+        <Route
+          path="/game/:id"
+          element={
+            <ProtectedRoute>
+              <DefaultLayout>
+                <ChessGamePage />
+              </DefaultLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/login"
+          element={
+            <DefaultLayout>
+              <Login />
+            </DefaultLayout>
+          }
+        />
+        <Route
+          path="/register"
+          element={
+            <DefaultLayout>
+              <Register />
+            </DefaultLayout>
+          }
+        />
+        <Route
+          path="*"
+          element={
+            <DefaultLayout>
+              <NotFound />
+            </DefaultLayout>
+          }
+        />
+      </Routes>
     </BrowserRouter>
   )
 }

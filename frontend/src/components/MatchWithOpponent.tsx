@@ -43,8 +43,10 @@ const MatchWithOpponent = () => {
   }
 
   return (
-    <div className="h-full rounded-xl bg-slate-200 p-5 flex flex-col items-center justify-center gap-5">
-      <h2 className="text-3xl font-semibold">Find Opponent</h2>
+    <div>
+      {status === 'searching' && (
+        <p className="text-white pb-2">Looking for an opponent...</p>
+      )}
       <button
         disabled={status === 'connecting'}
         onClick={handleClick}

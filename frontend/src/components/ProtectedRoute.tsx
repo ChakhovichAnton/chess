@@ -1,16 +1,18 @@
+import { FC, PropsWithChildren } from 'react'
 import { Navigate } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
+import Loading from '../pages/specialPages/Loading'
 
-interface ProtectedRouteProps {
-  isAuthenticated: boolean
-  children: React.ReactNode
-}
+const ProtectedRoute: FC<PropsWithChildren> = ({ children }) => {
+  const { user, loading } = useAuth()
 
-const ProtectedRoute = (props: ProtectedRouteProps) => {
-  if (!props.isAuthenticated) {
+  if (loading) {
+    return Loading()
+  } else if (!user) {
     return <Navigate to="/login" replace />
   }
 
-  return <>{props.children}</>
+  return <>{children}</>
 }
 
 export default ProtectedRoute

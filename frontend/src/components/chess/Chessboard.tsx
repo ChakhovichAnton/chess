@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import { Chess } from 'chess.js'
 import { Piece, Square } from 'react-chessboard/dist/chessboard/types'
 import { useAuth } from '../../contexts/AuthContext'
+import MoveTable from './MoveTable'
+import ToggleBoardDirectionButton from './ToggleBoardDirectionButton'
 
 interface ChessboardProps {
   game?: GameWithMoves
@@ -70,7 +72,7 @@ const Chessboard = (props: ChessboardProps) => {
   return (
     <div className="flex justify-center">
       <div className="max-w-6xl w-full flex gap-20">
-        <div>
+        <div className="flex">
           <ReactChessboard
             position={props.game ? chess.fen() : undefined} // To rerender the game whenever the game is loaded
             boardOrientation={boardOrientation}
@@ -79,26 +81,11 @@ const Chessboard = (props: ChessboardProps) => {
             isDraggablePiece={isDraggablePiece}
             animationDuration={0}
           />
-          <button
-            onClick={() => {
-              setBoardOrientation((prev) =>
-                prev === 'black' ? 'white' : 'black',
-              )
-            }}
-            className="hover:cursor-pointer"
-          >
-            Toggle Board Orientation
-          </button>
+          <ToggleBoardDirectionButton
+            setBoardOrientation={setBoardOrientation}
+          />
         </div>
-        <div className="grid grid-cols-2 max-h-[500px] overflow-y-scroll">
-          <h3 className="font-semibold pr-2 border-b-2">White</h3>
-          <h3 className="font-semibold border-b-2">Black</h3>
-          {props.game?.chessMoves.map((move) => (
-            <p key={move.id} className="border-b-2">
-              {move.moveText}
-            </p>
-          ))}
-        </div>
+        <MoveTable game={props.game} />
       </div>
     </div>
   )

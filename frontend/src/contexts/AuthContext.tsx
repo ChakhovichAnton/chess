@@ -14,6 +14,7 @@ import {
 import { User } from '../types'
 import { refreshAccessToken } from '../utils/accessToken'
 import { validateToken } from '../utils/accessToken'
+import { passwordIsValid, usernameIsValid } from '../utils/validators/userData'
 
 interface AuthContextType {
   user?: User
@@ -57,6 +58,13 @@ export const AuthProvider = (props: AuthProviderProps) => {
   }, [])
 
   const login = async (username: string, password: string) => {
+    if (!usernameIsValid(username)) {
+      return 'Username must be at least 3 characters long'
+    }
+    if (!passwordIsValid(password)) {
+      return 'Password must be at least 3 characters long'
+    }
+
     try {
       const response = await api.post('/api/account/login/', {
         username,
