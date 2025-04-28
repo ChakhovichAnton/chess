@@ -21,14 +21,23 @@ const MoveTable: FC<MoveTableProps> = (props) => {
   if (!props.game) return <></>
 
   return (
-    <div ref={scrollRef} className="max-h-[500px] overflow-y-scroll">
-      <table>
+    <div
+      ref={scrollRef}
+      className="max-h-[75vh] min-w-[300px] overflow-y-scroll"
+    >
+      <table className="w-full">
         <thead className="bg-gray-200 sticky top-0 z-1">
           <tr>
             {TABLE_COLUMNS.map((column) => (
               <th
                 key={column}
-                className="px-6 py-3 text-xs font-medium text-gray-700"
+                className={
+                  `px-6 py-3 text-xs font-medium text-gray-700 whitespace-nowrap overflow-hidden` +
+                    column ===
+                  ''
+                    ? 'w-[30px]'
+                    : ''
+                }
               >
                 {column}
               </th>
@@ -39,12 +48,12 @@ const MoveTable: FC<MoveTableProps> = (props) => {
           {arrayToPairs(props.game.chessMoves).map((move, index) => (
             <tr
               key={move[0].id}
-              className="bg-white hover:bg-gray-100 hover:cursor-pointer border-t-[1px]"
+              className="bg-white hover:bg-gray-100 hover:cursor-pointer border-t-[1px] text-center"
             >
-              <td>{index + 1}.</td>
-              <td className="text-center">{move[0].moveText}</td>
+              <td className="w-[30px]">{index + 1}.</td>
+              <td >{move[0].moveText}</td>
               {move[1] ? (
-                <td className="text-center">{move[1].moveText}</td>
+                <td>{move[1].moveText}</td>
               ) : (
                 <td></td>
               )}

@@ -18,7 +18,7 @@ const ToggleBoardDirectionButton: FC<ToggleBoardDirectionButtonProps> = (
     <Tooltip text="Toggle Board Direction">
       <button
         onClick={onClick}
-        className="hover:cursor-pointer bg-background-gray-light p-0.5 rounded-md w-fit h-fit"
+        className="hover:cursor-pointer bg-background-gray text-white p-0.5 rounded-md w-fit h-fit"
       >
         <HiArrowsUpDown />
       </button>

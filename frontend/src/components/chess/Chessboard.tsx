@@ -84,15 +84,17 @@ const Chessboard: FC<ChessboardProps> = (props) => {
   }
 
   return (
-    <div className="flex">
-      <ReactChessboard
-        position={props.game ? chess.fen() : undefined} // To rerender the game whenever the game is loaded
-        boardOrientation={boardOrientation}
-        boardWidth={boardSize}
-        onPieceDrop={onDrop}
-        isDraggablePiece={isDraggablePiece}
-        animationDuration={0}
-      />
+    <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light">
+      <div>
+        <ReactChessboard
+          position={props.game ? chess.fen() : undefined} // To rerender the game whenever the game is loaded
+          boardOrientation={boardOrientation}
+          boardWidth={boardSize}
+          onPieceDrop={onDrop}
+          isDraggablePiece={isDraggablePiece}
+          animationDuration={0}
+        />
+      </div>
       <ToggleBoardDirectionButton setBoardOrientation={setBoardOrientation} />
     </div>
   )
