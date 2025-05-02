@@ -21,13 +21,13 @@ const ChessGamePage = () => {
 
   return (
     <div className="flex justify-center">
-      <div className="flex flex-col lg:flex-row max-w-6xl px-1 xl:px-0 w-full gap-20">
+      <div className="flex flex-col lg:flex-row max-w-6xl px-1 xl:px-0 w-full gap-20 items-stretch">
         <Chessboard
           game={gameState}
           isLiveGame={status === 'live'}
           makeMove={makeMove}
         />
-        <div>
+        <div className="bg-background-gray-light py-2 px-4 rounded">
           <MoveTable game={gameState} />
         </div>
       </div>

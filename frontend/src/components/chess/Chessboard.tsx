@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext'
 import ToggleBoardDirectionButton from './ToggleBoardDirectionButton'
 import ToggleValidMovesButton from './ToggleValidMovesButton'
+import GamePlayerProfile from './GamePlayerProfile'
 
 const SELECTED_SQUARE_COLOR = 'rgba(187, 190, 133, 1)'
 const MOVABLE_SQUARE_STYLE = {
@@ -58,7 +59,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
   useEffect(() => {
     const updateSize = () => {
       const newSize = Math.min(
-        window.innerHeight * 0.75,
+        window.innerHeight * 0.7,
         window.innerWidth * 0.9,
       )
       setBoardSize(newSize)
@@ -153,7 +154,16 @@ const Chessboard: FC<ChessboardProps> = (props) => {
 
   return (
     <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light">
-      <div>
+      <div className="space-y-1">
+        <GamePlayerProfile
+          player={
+            props.game
+              ? props.game[
+                  boardOrientation === 'black' ? 'userWhite' : 'userBlack'
+                ]
+              : { username: 'Opponent' }
+          }
+        />
         <ReactChessboard
           position={props.game ? chess.fen() : undefined} // To rerender the game whenever the game is loaded
           boardOrientation={boardOrientation}
@@ -168,6 +178,15 @@ const Chessboard: FC<ChessboardProps> = (props) => {
               backgroundColor: SELECTED_SQUARE_COLOR,
             },
           }}
+        />
+        <GamePlayerProfile
+          player={
+            props.game
+              ? props.game[
+                  boardOrientation === 'white' ? 'userWhite' : 'userBlack'
+                ]
+              : { username: 'You' }
+          }
         />
       </div>
       <div className="flex flex-col gap-2">
