@@ -2,9 +2,23 @@ import { Chessboard as ReactChessboard } from 'react-chessboard'
 import { BoardOrientation, GameWithMoves } from '../../types'
 import { FC, useEffect, useState } from 'react'
 import { Chess } from 'chess.js'
-import { Piece, Square } from 'react-chessboard/dist/chessboard/types'
+import {
+  CustomSquareStyles,
+  Piece,
+  Square,
+} from 'react-chessboard/dist/chessboard/types'
 import { useAuth } from '../../contexts/AuthContext'
 import ToggleBoardDirectionButton from './ToggleBoardDirectionButton'
+import ToggleValidMovesButton from './ToggleValidMovesButton'
+
+const SELECTED_SQUARE_COLOR = 'rgba(187, 190, 133, 1)'
+const MOVABLE_SQUARE_STYLE = {
+  background: {
+    isCapture: 'radial-gradient(circle, rgba(0,0,0,0.3) 30%, transparent 90%)',
+    notCapture: 'radial-gradient(circle, rgba(0,0,0,0.3) 15%, transparent 20%)',
+  },
+  borderRadius: '50%',
+}
 
 interface ChessboardProps {
   game?: GameWithMoves
@@ -21,6 +35,11 @@ const Chessboard: FC<ChessboardProps> = (props) => {
   const [boardOrientation, setBoardOrientation] =
     useState<BoardOrientation>('white')
   const [boardSize, setBoardSize] = useState(400)
+  const [squareStyles, setSquareStyles] = useState<
+    CustomSquareStyles | undefined
+  >(undefined)
+  const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
+  const [showValidMoves, setShowValidMoves] = useState(true)
 
   useEffect(() => {
     const newChess = new Chess(props.game?.fen)
@@ -50,7 +69,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     return () => window.removeEventListener('resize', updateSize)
   }, [])
 
-  const onDrop = (sourceSquare: Square, targetSquare: Square) => {
+  const move = (sourceSquare: Square, targetSquare: Square) => {
     if (!props.game || !isPlayerTurn) return false
 
     try {
@@ -83,6 +102,55 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     return isPlayerTurn && (isBlack || isWhite)
   }
 
+  const onSquareClick = (square: Square) => {
+    const resetSquareSelections = () => {
+      setSquareStyles(undefined)
+      setSelectedSquare(null)
+    }
+
+    // Player cannot click on squares if it is not their turn
+    if (!isPlayerTurn) {
+      resetSquareSelections()
+      return
+    }
+
+    // Move the piece into the square if a movable piece has been selected
+    if (selectedSquare && move(selectedSquare, square)) {
+      resetSquareSelections()
+      return
+    }
+
+    // If the square has no piece, deselect the square
+    if (chess.get(square).type === undefined) {
+      resetSquareSelections()
+      return
+    }
+
+    // If a square is clicked twice in a row, deselect the square
+    if (selectedSquare === square) {
+      resetSquareSelections()
+      return
+    }
+
+    const possibleMoves = chess.moves({ square, verbose: true })
+
+    const customSquares: CustomSquareStyles = {}
+    possibleMoves.forEach((move) => {
+      const isCapture = chess.get(move.to).type
+
+      customSquares[move.to] = {
+        background:
+          MOVABLE_SQUARE_STYLE.background[
+            isCapture ? 'isCapture' : 'notCapture'
+          ],
+        borderRadius: MOVABLE_SQUARE_STYLE.borderRadius,
+      }
+    })
+
+    setSquareStyles(customSquares)
+    setSelectedSquare(square)
+  }
+
   return (
     <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light">
       <div>
@@ -90,12 +158,25 @@ const Chessboard: FC<ChessboardProps> = (props) => {
           position={props.game ? chess.fen() : undefined} // To rerender the game whenever the game is loaded
           boardOrientation={boardOrientation}
           boardWidth={boardSize}
-          onPieceDrop={onDrop}
+          onPieceDrop={move}
           isDraggablePiece={isDraggablePiece}
           animationDuration={0}
+          onSquareClick={onSquareClick}
+          customSquareStyles={{
+            ...(showValidMoves ? squareStyles : {}),
+            [selectedSquare as string]: {
+              backgroundColor: SELECTED_SQUARE_COLOR,
+            },
+          }}
         />
       </div>
-      <ToggleBoardDirectionButton setBoardOrientation={setBoardOrientation} />
+      <div className="flex flex-col gap-2">
+        <ToggleBoardDirectionButton setBoardOrientation={setBoardOrientation} />
+        <ToggleValidMovesButton
+          setShowValidMoves={setShowValidMoves}
+          showValidMoves={showValidMoves}
+        />
+      </div>
     </div>
   )
 }
