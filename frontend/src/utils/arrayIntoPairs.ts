@@ -1,7 +1,7 @@
 /**
  * Function, which pairs the values from the indices 0 and 1, 2 and 3, ...
  */
-export const arrayToPairs = (array: any[]) => {
+export const arrayToPairs = <T>(array: T[]) => {
   const pairs = []
 
   for (let i = 0; i < array.length; i += 2) {

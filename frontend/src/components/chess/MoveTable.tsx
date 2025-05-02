@@ -6,7 +6,7 @@ interface MoveTableProps {
   game?: GameWithMoves
 }
 
-const TABLE_COLUMNS = ['', 'White', 'Black'] // Empty column for move index
+const TABLE_COLUMNS = ['White', 'Black']
 
 const MoveTable: FC<MoveTableProps> = (props) => {
   const scrollRef = useRef<HTMLDivElement>(null)
@@ -28,16 +28,12 @@ const MoveTable: FC<MoveTableProps> = (props) => {
       <table className="w-full">
         <thead className="bg-gray-200 sticky top-0 z-1">
           <tr>
+            {/* Empty header for the move number */}
+            <th className="w-[30px]"></th>
             {TABLE_COLUMNS.map((column) => (
               <th
                 key={column}
-                className={
-                  `px-6 py-3 text-xs font-medium text-gray-700 whitespace-nowrap overflow-hidden` +
-                    column ===
-                  ''
-                    ? 'w-[30px]'
-                    : ''
-                }
+                className="px-6 py-3 text-xs font-medium text-gray-700 whitespace-nowrap overflow-hidden"
               >
                 {column}
               </th>
@@ -51,12 +47,8 @@ const MoveTable: FC<MoveTableProps> = (props) => {
               className="bg-white hover:bg-gray-100 hover:cursor-pointer border-t-[1px] text-center"
             >
               <td className="w-[30px]">{index + 1}.</td>
-              <td >{move[0].moveText}</td>
-              {move[1] ? (
-                <td>{move[1].moveText}</td>
-              ) : (
-                <td></td>
-              )}
+              <td>{move[0].moveText}</td>
+              {move[1] ? <td>{move[1].moveText}</td> : <td></td>}
             </tr>
           ))}
         </tbody>
