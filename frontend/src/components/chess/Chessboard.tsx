@@ -22,7 +22,7 @@ const MOVABLE_SQUARE_STYLE = {
 }
 
 interface ChessboardProps {
-  game?: GameWithMoves
+  game: GameWithMoves
   isLiveGame: boolean
   makeMove: (move: string) => void
 }
@@ -30,7 +30,7 @@ interface ChessboardProps {
 const Chessboard: FC<ChessboardProps> = (props) => {
   const { user, loading } = useAuth()
 
-  const [chess, setChess] = useState(new Chess(props.game?.fen))
+  const [chess, setChess] = useState(new Chess(props.game.fen))
   const [isPlayerTurn, setIsPlayerTurn] = useState(true)
   // Default to white while setting the actual orientation in the useEffect
   const [boardOrientation, setBoardOrientation] =
@@ -43,9 +43,9 @@ const Chessboard: FC<ChessboardProps> = (props) => {
   const [showValidMoves, setShowValidMoves] = useState(true)
 
   useEffect(() => {
-    const newChess = new Chess(props.game?.fen)
-    const isBlack = user?.id === props.game?.userBlack.id
-    const isWhite = user?.id === props.game?.userWhite.id
+    const newChess = new Chess(props.game.fen)
+    const isBlack = user?.id === props.game.userBlack.id
+    const isWhite = user?.id === props.game.userWhite.id
 
     const isPlayerTurn =
       (newChess.turn() === 'b' && isBlack) ||
@@ -53,15 +53,15 @@ const Chessboard: FC<ChessboardProps> = (props) => {
 
     setChess(newChess)
     setBoardOrientation(isBlack ? 'black' : 'white')
-    setIsPlayerTurn(!props.game ? false : isPlayerTurn)
+    setIsPlayerTurn(isPlayerTurn)
   }, [props.game])
 
   useEffect(() => {
     const updateSize = () => {
-      const newSize = Math.min(
-        window.innerHeight * 0.7,
-        window.innerWidth * 0.9,
-      )
+      const maxHeight = Math.max(window.innerHeight - 225, 300)
+      const maxWidth = Math.max(window.innerWidth - 100, 300)
+
+      const newSize = Math.min(maxHeight, maxWidth)
       setBoardSize(newSize)
     }
     updateSize()
@@ -70,8 +70,14 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     return () => window.removeEventListener('resize', updateSize)
   }, [])
 
+  const resetSquareSelections = () => {
+    setSquareStyles(undefined)
+    setSelectedSquare(null)
+  }
+
   const move = (sourceSquare: Square, targetSquare: Square) => {
-    if (!props.game || !isPlayerTurn) return false
+    resetSquareSelections()
+    if (!isPlayerTurn) return false
 
     try {
       const gameCopy = new Chess(props.game.fen)
@@ -95,20 +101,13 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     if (loading || !user) return false
 
     // Checking if the piece belongs to the player
-    const isBlack =
-      user.id === props.game?.userBlack.id && piece.startsWith('b')
-    const isWhite =
-      user.id === props.game?.userWhite.id && piece.startsWith('w')
+    const isBlack = user.id === props.game.userBlack.id && piece.startsWith('b')
+    const isWhite = user.id === props.game.userWhite.id && piece.startsWith('w')
 
     return isPlayerTurn && (isBlack || isWhite)
   }
 
   const onSquareClick = (square: Square) => {
-    const resetSquareSelections = () => {
-      setSquareStyles(undefined)
-      setSelectedSquare(null)
-    }
-
     // Player cannot click on squares if it is not their turn
     if (!isPlayerTurn) {
       resetSquareSelections()
@@ -116,10 +115,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     }
 
     // Move the piece into the square if a movable piece has been selected
-    if (selectedSquare && move(selectedSquare, square)) {
-      resetSquareSelections()
-      return
-    }
+    if (selectedSquare && move(selectedSquare, square)) return
 
     // If the square has no piece, deselect the square
     if (chess.get(square).type === undefined) {
@@ -153,24 +149,20 @@ const Chessboard: FC<ChessboardProps> = (props) => {
   }
 
   return (
-    <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light">
+    <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light w-fit">
       <div className="space-y-1">
         <GamePlayerProfile
           player={
-            props.game
-              ? props.game[
-                  boardOrientation === 'black' ? 'userWhite' : 'userBlack'
-                ]
-              : { username: 'Opponent' }
+            props.game[boardOrientation === 'black' ? 'userWhite' : 'userBlack']
           }
         />
         <ReactChessboard
-          position={props.game ? chess.fen() : undefined} // To rerender the game whenever the game is loaded
+          position={chess.fen()}
           boardOrientation={boardOrientation}
           boardWidth={boardSize}
           onPieceDrop={move}
           isDraggablePiece={isDraggablePiece}
-          animationDuration={0}
+          animationDuration={300}
           onSquareClick={onSquareClick}
           customSquareStyles={{
             ...(showValidMoves ? squareStyles : {}),
@@ -181,11 +173,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
         />
         <GamePlayerProfile
           player={
-            props.game
-              ? props.game[
-                  boardOrientation === 'white' ? 'userWhite' : 'userBlack'
-                ]
-              : { username: 'You' }
+            props.game[boardOrientation === 'white' ? 'userWhite' : 'userBlack']
           }
         />
       </div>

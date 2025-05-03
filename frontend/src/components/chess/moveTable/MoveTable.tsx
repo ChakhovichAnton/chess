@@ -1,11 +1,11 @@
 import { FC, useEffect, useRef } from 'react'
 import { GameWithMoves } from '../../../types'
 import { arrayToPairs } from '../../../utils/arrayIntoPairs'
-import './MoveTable.css';
+import './MoveTable.css'
 import MoveDescription from './MoveDescription'
 
 interface MoveTableProps {
-  game?: GameWithMoves
+  game: GameWithMoves
 }
 
 const MoveTable: FC<MoveTableProps> = (props) => {
@@ -18,12 +18,10 @@ const MoveTable: FC<MoveTableProps> = (props) => {
     }
   }, [props.game])
 
-  if (!props.game) return <></>
-
   return (
     <div
       ref={scrollRef}
-      className="max-h-[75vh] min-w-[300px] overflow-y-scroll custom-scroll border-y-1 border-black"
+      className="max-h-[50vh] md:max-h-[80vh] min-w-[250px] overflow-y-scroll custom-scroll border-y-1 border-black"
     >
       <table className="w-full text-gray-200 font-medium">
         <tbody>
@@ -45,7 +43,6 @@ const MoveTable: FC<MoveTableProps> = (props) => {
           ))}
         </tbody>
       </table>
-    
     </div>
   )
 }

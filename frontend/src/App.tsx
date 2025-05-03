@@ -5,7 +5,8 @@ import ChessGamePage from './pages/ChessGamePage'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import DefaultLayout from './components/DefaultLayout'
+import DefaultLayout from './components/Layouts/DefaultLayout'
+import GameLayout from './components/Layouts/GameLayout'
 
 const App = () => {
   return (
@@ -23,9 +24,9 @@ const App = () => {
           path="/game/:id"
           element={
             <ProtectedRoute>
-              <DefaultLayout>
+              <GameLayout>
                 <ChessGamePage />
-              </DefaultLayout>
+              </GameLayout>
             </ProtectedRoute>
           }
         />

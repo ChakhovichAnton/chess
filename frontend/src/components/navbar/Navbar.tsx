@@ -7,7 +7,7 @@ const Navbar = () => {
   const { user, loading, logout } = useAuth()
 
   return (
-    <nav className="fixed bg-white flex justify-center w-full z-10 px-2 py-6">
+    <nav className="fixed bg-white flex justify-center w-full z-10 px-2 h-20">
       <div className="flex justify-between items-center max-w-6xl w-full font-semibold">
         <a href="/" className="flex items-center gap-2 text-3xl">
           <FaChessKing size={28} className="shrink-0" /> Online Chess
