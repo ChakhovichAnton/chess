@@ -11,6 +11,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import ToggleBoardDirectionButton from './ToggleBoardDirectionButton'
 import ToggleValidMovesButton from './ToggleValidMovesButton'
 import GamePlayerProfile from './GamePlayerProfile'
+import { getCapturedPieces } from '../../utils/chess'
 
 const SELECTED_SQUARE_COLOR = 'rgba(187, 190, 133, 1)'
 const MOVABLE_SQUARE_STYLE = {
@@ -148,6 +149,8 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     setSelectedSquare(square)
   }
 
+  const { capturedByWhite, capturedByBlack } = getCapturedPieces(chess)
+
   return (
     <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light w-fit">
       <div className="space-y-1">
@@ -155,6 +158,10 @@ const Chessboard: FC<ChessboardProps> = (props) => {
           player={
             props.game[boardOrientation === 'black' ? 'userWhite' : 'userBlack']
           }
+          capturedPieces={
+            boardOrientation === 'black' ? capturedByWhite : capturedByBlack
+          }
+          isWhite={boardOrientation === 'black'}
         />
         <ReactChessboard
           position={chess.fen()}
@@ -175,6 +182,10 @@ const Chessboard: FC<ChessboardProps> = (props) => {
           player={
             props.game[boardOrientation === 'white' ? 'userWhite' : 'userBlack']
           }
+          capturedPieces={
+            boardOrientation === 'white' ? capturedByWhite : capturedByBlack
+          }
+          isWhite={boardOrientation === 'white'}
         />
       </div>
       <div className="flex flex-col gap-2">

@@ -9,28 +9,35 @@ import {
   FaChessKing,
 } from 'react-icons/fa'
 
-const WHITE_CSS = 'text-white text-lg shrink-0'
-const BLACK_CSS = 'text-black text-lg shrink-0'
+const WHITE_CSS = 'text-white shrink-0'
+const BLACK_CSS = 'text-black shrink-0'
 
 interface ChessPieceIconProps {
   piece: PieceSymbol | string
   isWhite: boolean
+  size?: number
 }
 
-export const ChessPieceIcon: FC<ChessPieceIconProps> = ({ piece, isWhite }) => {
+export const ChessPieceIcon: FC<ChessPieceIconProps> = ({
+  piece,
+  isWhite,
+  size = 20,
+}) => {
+  const className = isWhite ? WHITE_CSS : BLACK_CSS
+
   switch (piece) {
     case 'p':
-      return <FaChessPawn className={isWhite ? WHITE_CSS : BLACK_CSS} />
+      return <FaChessPawn size={size} className={className} />
     case 'n':
-      return <FaChessKnight className={isWhite ? WHITE_CSS : BLACK_CSS} />
+      return <FaChessKnight size={size} className={className} />
     case 'b':
-      return <FaChessBishop className={isWhite ? WHITE_CSS : BLACK_CSS} />
+      return <FaChessBishop size={size} className={className} />
     case 'r':
-      return <FaChessRook className={isWhite ? WHITE_CSS : BLACK_CSS} />
+      return <FaChessRook size={size} className={className} />
     case 'q':
-      return <FaChessQueen className={isWhite ? WHITE_CSS : BLACK_CSS} />
+      return <FaChessQueen size={size} className={className} />
     case 'k':
-      return <FaChessKing className={isWhite ? WHITE_CSS : BLACK_CSS} />
+      return <FaChessKing size={size} className={className} />
   }
   return <></>
 }
