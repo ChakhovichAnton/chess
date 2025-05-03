@@ -1,0 +1,53 @@
+import { FC, useEffect, useRef } from 'react'
+import { GameWithMoves } from '../../../types'
+import { arrayToPairs } from '../../../utils/arrayIntoPairs'
+import './MoveTable.css';
+import MoveDescription from './MoveDescription'
+
+interface MoveTableProps {
+  game?: GameWithMoves
+}
+
+const MoveTable: FC<MoveTableProps> = (props) => {
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      // Scrolls to the bottom of the table to show the last move
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight
+    }
+  }, [props.game])
+
+  if (!props.game) return <></>
+
+  return (
+    <div
+      ref={scrollRef}
+      className="max-h-[75vh] min-w-[300px] overflow-y-scroll custom-scroll border-y-1 border-black"
+    >
+      <table className="w-full text-gray-200 font-medium">
+        <tbody>
+          {arrayToPairs(props.game.chessMoves).map((move, index) => (
+            <tr
+              key={move[0].id}
+              className="odd:bg-background-gray-medium even:bg-background-gray-light text-center"
+            >
+              <td className="w-[40px]">{index + 1}.</td>
+              <td>
+                <MoveDescription move={move[0]} isWhite={true} />
+              </td>
+              <td>
+                {move[1] ? (
+                  <MoveDescription move={move[1]} isWhite={false} />
+                ) : null}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    
+    </div>
+  )
+}
+
+export default MoveTable
