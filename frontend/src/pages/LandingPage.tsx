@@ -1,38 +1,37 @@
 import MatchWithOpponent from '../components/MatchWithOpponent'
 import GameTable from '../components/GameTable'
 import { Chessboard as ReactChessboard } from 'react-chessboard'
-import { FaChessKing } from 'react-icons/fa6'
 import { useAuth } from '../contexts/AuthContext'
+import FloatingChessPieces from '../components/floatingChessPieces/FloatingChessPieces'
 
 const LandingPage = () => {
   const { loading, user } = useAuth()
 
   return (
     <div className="flex justify-center px-2 min-h-full">
-      <div className="max-w-6xl w-full pt-16">
-        <div className="grid sm:grid-cols-2 grid-cols-1 gap-4 sm:gap-16">
-          <div className="bg-background-gray-light rounded-md text-center flex flex-col items-center justify-center">
-            <h1 className="flex items-center gap-5 text-5xl font-semibold mb-6 text-white">
-              Play Chess Online <FaChessKing size={45} className="shrink-0" />
+      <FloatingChessPieces />
+      <div className="max-w-6xl w-full pt-16 z-1">
+        <div className="flex justify-between gap-2">
+          <div className="flex flex-col justify-center text-white space-y-10">
+            <h1 className="flex flex-col text-8xl font-bold space-y-6 font-sans tracking-wide">
+              <span>Chess</span>
+              <span>Online</span>
             </h1>
-
+            <p className="text-2xl max-w-[500px]">
+              Play chess online anywhere and at anytime. Login to start playing.
+            </p>
             {!loading && user ? (
-              <div>
-                <MatchWithOpponent />
-              </div>
+              <MatchWithOpponent />
             ) : (
-              <div className="space-y-5">
-                <p className="text-white text-2xl">Log in to start playing</p>
-                <a
-                  href="/login"
-                  className="text-white text-3xl bg-light-blue hover:brightness-110 rounded-md py-1 px-4 hover:cursor-pointer"
-                >
-                  Log In
-                </a>
-              </div>
+              <a
+                href="/login"
+                className="text-white text-2xl bg-light-blue hover:brightness-110 rounded-xs py-2 px-6 w-fit"
+              >
+                Login
+              </a>
             )}
           </div>
-          <div className="max-w-sm p-1 bg-amber-950 rounded-md">
+          <div className="hidden md:flex max-w-sm lg:max-w-md xl:max-w-lg p-1 w-full h-fit bg-brown rounded-md">
             <ReactChessboard
               // Static chessboard
               onSquareClick={() => {}}

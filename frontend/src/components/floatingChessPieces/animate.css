@@ -1,0 +1,99 @@
+@keyframes floatAround {
+  0% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-50px) translateX(30px) rotate(10deg);
+  }
+  100% {
+    transform: translateY(0) translateX(0) rotate(0deg);
+  }
+}
+
+@keyframes slowBounceLeftToRight {
+  0% {
+    transform: translate(0vw, 0vh);
+  }
+  30% {
+    transform: translate(30vw, 15vh);
+  }
+  50% {
+    transform: translate(50vw, 30vh);
+  }
+  70% {
+    transform: translate(70vw, 10vh);
+  }
+  80% {
+    transform: translate(80vw, 15vh);
+  }
+  90% {
+    transform: translate(90vw, 5vh);
+  }
+  100% {
+    transform: translate(100vw, 5vh);
+  }
+}
+
+@keyframes slowBounceRightToLeft {
+  0% {
+    transform: translate(0vw, 0vh);
+  }
+  50% {
+    transform: translate(-50vw, -45vh);
+  }
+  100% {
+    transform: translate(-100vw, -10vh);
+  }
+}
+
+.floating-piece-left-to-right {
+  position: absolute;
+  opacity: 0.08;
+  animation: slowBounceLeftToRight linear infinite;
+  pointer-events: none;
+}
+
+.floating-piece-right-to-left {
+  position: absolute;
+  opacity: 0.08;
+  animation: slowBounceRightToLeft linear infinite;
+  pointer-events: none;
+}
+
+.float-piece {
+  position: absolute;
+  opacity: 0.08;
+  animation: floatAround infinite ease-in-out;
+  pointer-events: none;
+}
+
+.float-1 {
+  top: 10%;
+  left: 15%;
+  animation-duration: 32s;
+}
+.float-2 {
+  top: 80%;
+  left: 45%;
+  animation-duration: 18s;
+}
+.float-3 {
+  top: 50%;
+  left: 40%;
+  animation-duration: 14s;
+}
+.float-4 {
+  top: 70%;
+  left: 20%;
+  animation-duration: 11s;
+}
+.float-5 {
+  top: 80%;
+  left: 90%;
+  animation-duration: 29s;
+}
+.float-6 {
+  top: 20%;
+  left: 50%;
+  animation-duration: 13s;
+}

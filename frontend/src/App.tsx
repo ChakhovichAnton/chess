@@ -5,8 +5,8 @@ import ChessGamePage from './pages/ChessGamePage'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
-import DefaultLayout from './components/Layouts/DefaultLayout'
-import GameLayout from './components/Layouts/GameLayout'
+import DefaultLayout from './components/layouts/DefaultLayout'
+import GameLayout from './components/layouts/GameLayout'
 
 const App = () => {
   return (
