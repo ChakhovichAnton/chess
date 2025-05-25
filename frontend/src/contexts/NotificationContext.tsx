@@ -6,13 +6,14 @@ import {
   FC,
 } from 'react'
 import { IoCloseSharp } from 'react-icons/io5'
+import { createId } from '../utils/createId'
 
 const DISPLAY_TIME_MS = 3000
 
 type NotificationType = 'error' | 'success' | 'info'
 
 interface Notification {
-  id: number
+  id: string
   message: string
   type: NotificationType
 }
@@ -28,14 +29,14 @@ const NotificationContext = createContext<NotificationContextProps>({
 export const NotificationProvider: FC<PropsWithChildren> = (props) => {
   const [notifications, setNotifications] = useState<Notification[]>([])
 
-  const removeNotification = (id: number) => {
+  const removeNotification = (id: string) => {
     setNotifications((prev) =>
       prev.filter((notification) => notification.id !== id),
     )
   }
 
   const addNotification = (message: string, type: NotificationType) => {
-    const id = Date.now()
+    const id = createId()
     setNotifications((prev) => [...prev, { id, message, type }])
     setTimeout(() => removeNotification(id), DISPLAY_TIME_MS)
   }
