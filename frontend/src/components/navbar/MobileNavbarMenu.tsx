@@ -18,7 +18,7 @@ const MobileNavbarMenu = () => {
       </button>
 
       <div
-        className={`absolute flex flex-1 left-0 right-0 top-full bg-white shadow-md z-10 transform transition-all duration-300 ease-in-out md:hidden ${
+        className={`absolute flex flex-1 left-0 right-0 top-full bg-white shadow-md z-10 transform transition-all duration-300 ease-in-out xs:hidden ${
           isOpen
             ? 'translate-y-0 opacity-100 border-y'
             : '-translate-y-4 opacity-0 pointer-events-none'

@@ -14,7 +14,7 @@ const Navbar = () => {
           <FaChessKing size={28} className="shrink-0" /> Online Chess
         </a>
         <MobileNavbarMenu />
-        <div className="hidden xs:flex gap-2 sm:gap-10 items-center">
+        <div className="hidden xs:flex gap-3 sm:gap-10 items-center">
           {user ? (
             <>
               <NavbarLink href="/profile" text="Profile" />
