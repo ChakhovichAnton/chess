@@ -7,6 +7,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import DefaultLayout from './components/layouts/DefaultLayout'
 import GameLayout from './components/layouts/GameLayout'
+import { NotificationProvider } from './contexts/NotificationContext'
 
 const App = () => {
   return (
@@ -25,7 +26,9 @@ const App = () => {
           element={
             <ProtectedRoute>
               <GameLayout>
-                <ChessGamePage />
+                <NotificationProvider>
+                  <ChessGamePage />
+                </NotificationProvider>
               </GameLayout>
             </ProtectedRoute>
           }

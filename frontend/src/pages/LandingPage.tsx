@@ -3,6 +3,7 @@ import GameTable from '../components/GameTable'
 import { Chessboard as ReactChessboard } from 'react-chessboard'
 import { useAuth } from '../contexts/AuthContext'
 import FloatingChessPieces from '../components/floatingChessPieces/FloatingChessPieces'
+import { NotificationProvider } from '../contexts/NotificationContext'
 
 const LandingPage = () => {
   const { loading, user } = useAuth()
@@ -21,7 +22,9 @@ const LandingPage = () => {
               Play chess online anywhere and at anytime. Login to start playing.
             </p>
             {!loading && user ? (
-              <MatchWithOpponent />
+              <NotificationProvider>
+                <MatchWithOpponent />
+              </NotificationProvider>
             ) : (
               <a
                 href="/login"

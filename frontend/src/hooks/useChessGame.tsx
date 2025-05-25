@@ -4,10 +4,12 @@ import { validateChessMove } from '../utils/validators/chess'
 import { isAxiosError } from 'axios'
 import api from '../utils/axios'
 import { UseWebSocket } from './useWebSocket'
+import { UseNotification } from '../contexts/NotificationContext'
 
 type Status = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
 
 export const UseChessGame = (gameId: number) => {
+  const { addNotification } = UseNotification()
   const [status, setStatus] = useState<Status>('loading')
   const [gameState, setGameState] = useState<GameWithMoves | undefined>(
     undefined,
@@ -40,10 +42,8 @@ export const UseChessGame = (gameId: number) => {
         } satisfies GameWithMoves
       })
     } else if (data.action === 'error') {
-      //const errorMessage = data.error as string
-      // TODO: show error
-    } else if (data.action === 'gameOver') {
-      // TODO: end game
+      const errorMessage = data.error as string
+      addNotification(errorMessage, 'error')
     }
   }
 
