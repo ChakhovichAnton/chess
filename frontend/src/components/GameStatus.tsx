@@ -2,10 +2,16 @@ import { FaCheckCircle, FaTimesCircle } from 'react-icons/fa'
 import { GameStatus } from '../types'
 import { FaEquals } from 'react-icons/fa6'
 import { CgMediaLive } from 'react-icons/cg'
+import Tooltip from './Tooltip'
 
 const Won = () => <FaCheckCircle className="text-green-500 text-xl" />
 
 const Lost = () => <FaTimesCircle className="text-red-500 text-xl" />
+
+const WIN_TEXT = 'Victory'
+const DEFEAT_TEXT = 'Defeat'
+const ONGOING_TEXT = 'Ongoing'
+const DRAW_TEXT = 'Draw'
 
 export const GameStatusDescription = (
   gameStatus: GameStatus,
@@ -13,12 +19,28 @@ export const GameStatusDescription = (
 ) => {
   switch (gameStatus) {
     case GameStatus.ONGOING:
-      return <CgMediaLive className="text-red-500 text-xl animate-spin" />
+      return (
+        <Tooltip text={ONGOING_TEXT}>
+          <CgMediaLive className="text-red-500 text-xl animate-spin" />
+        </Tooltip>
+      )
     case GameStatus.WHITE_WIN:
-      return isWhite ? Won() : Lost()
+      return (
+        <Tooltip text={isWhite ? WIN_TEXT : DEFEAT_TEXT}>
+          {isWhite ? Won() : Lost()}
+        </Tooltip>
+      )
     case GameStatus.BLACK_WIN:
-      return isWhite ? Lost() : Won()
+      return (
+        <Tooltip text={isWhite ? DEFEAT_TEXT : WIN_TEXT}>
+          {isWhite ? Lost() : Won()}
+        </Tooltip>
+      )
     case GameStatus.DRAW:
-      return <FaEquals className="text-gray-500 text-xl" />
+      return (
+        <Tooltip text={DRAW_TEXT}>
+          <FaEquals className="text-gray-500 text-xl" />
+        </Tooltip>
+      )
   }
 }
