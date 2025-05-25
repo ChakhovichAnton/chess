@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { UseWebSocket } from '../hooks/useWebSocket'
+import Dialog from './Dialog'
 
 const MatchWithOpponent = () => {
   const navigate = useNavigate()
@@ -8,33 +9,46 @@ const MatchWithOpponent = () => {
     (event) => navigate(`/game/${JSON.parse(event.data).gameId}`), // onMessage
   )
 
-  const handleClick = () => {
-    // In case the user clicks the button twice in a row on accident
-    if (status === 'loading') return
+  const handleConnectClick = () => {
+    if (status == 'error' || status === 'disconnected') {
+      connect()
+    }
+  }
 
+  const handleDisconnectClick = () => {
     if (status === 'connected') {
       disconnect()
-      return
     }
-    connect()
   }
 
   return (
     <div>
-      {status === 'connected' && (
-        <p className="text-white pb-2">Looking for an opponent...</p>
-      )}
       <button
         disabled={status === 'loading'}
-        onClick={handleClick}
-        className="hover:cursor-pointer p-3 rounded-md border bg-green-500 hover:bg-green-400"
+        onClick={handleConnectClick}
+        className="hover:cursor-pointer text-white text-2xl bg-light-blue hover:brightness-110 rounded-xs py-2 px-6 w-fit"
       >
         {status === 'loading'
           ? 'Loading...'
           : status === 'connected'
-            ? 'Cancel finding'
-            : 'Find opponent'}
+            ? 'Searching for an opponent...'
+            : 'Find Opponent'}
       </button>
+      <Dialog isOpen={status === 'connected'} onClose={disconnect}>
+        <div className="min-h-[50vh] min-w-[50vh] flex flex-col justify-center items-center space-y-6 text-lg font-medium">
+          <img src="loading.svg" alt="Loading spinner" />
+          <p className="text-gray-700 mb-10">
+            Searching for an opponent
+            <span className="dot-animation"></span>
+          </p>
+          <button
+            onClick={handleDisconnectClick}
+            className="hover:cursor-pointer bg-red-500 hover:brightness-120 px-3 py-1 rounded-xs"
+          >
+            Cancel
+          </button>
+        </div>
+      </Dialog>
     </div>
   )
 }
