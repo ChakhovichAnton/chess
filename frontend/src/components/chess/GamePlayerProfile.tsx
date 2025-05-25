@@ -15,7 +15,7 @@ const GamePlayerProfile: FC<GamePlayerProfileProps> = (props) => {
       <CgProfile size={40} className="bg-white rounded" />
       <div className="flex flex-col">
         <p className="font-medium text-white">{props.player.username}</p>
-        <span className="flex gap-0.5">
+        <span className="flex gap-0.5 h-4">
           {props.capturedPieces.map((piece, index) => (
             <ChessPieceIcon
               key={index}
