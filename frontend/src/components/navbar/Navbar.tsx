@@ -2,17 +2,19 @@ import { FaChessKing, FaGithub } from 'react-icons/fa6'
 import { useAuth } from '../../contexts/AuthContext'
 import NavbarButton from './NavbarButton'
 import NavbarLink from './NavbarLink'
+import MobileNavbarMenu from './MobileNavbarMenu'
 
 const Navbar = () => {
   const { user, loading, logout } = useAuth()
 
   return (
-    <nav className="fixed bg-white flex justify-center w-full z-10 px-2 h-20">
-      <div className="flex justify-between items-center max-w-6xl w-full font-semibold">
+    <nav className="fixed bg-white flex justify-center w-full z-10 px-2 h-20 font-semibold">
+      <div className="flex justify-between items-center max-w-6xl w-full">
         <a href="/" className="flex items-center gap-2 text-3xl">
           <FaChessKing size={28} className="shrink-0" /> Online Chess
         </a>
-        <div className="flex gap-2 sm:gap-10 items-center">
+        <MobileNavbarMenu />
+        <div className="hidden xs:flex gap-2 sm:gap-10 items-center">
           {user ? (
             <>
               <NavbarLink href="/profile" text="Profile" />

@@ -7,4 +7,7 @@
   --color-background-gray-medium: #383838;
   --color-background-gray-light: #3d3d3d;
   --color-brown: #8B4513;
+
+  /* Breakpoints */
+  --breakpoint-xs: 27rem;
 }
