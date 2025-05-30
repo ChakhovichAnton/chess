@@ -11,6 +11,7 @@ const Dialog: FC<DialogProps> = (props) => {
   useEffect(() => {
     if (!window) return
 
+    // Close dialog if the user clicks outside of it
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dialogRef.current &&

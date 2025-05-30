@@ -23,11 +23,7 @@ interface AuthContextType {
   logout: () => void
 }
 
-const AuthContext = createContext<AuthContextType>({
-  loading: true,
-  login: async () => '',
-  logout: () => {},
-})
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 interface AuthProviderProps {
   children: ReactNode

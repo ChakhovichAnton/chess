@@ -22,9 +22,9 @@ interface NotificationContextProps {
   addNotification: (message: string, type: NotificationType) => void
 }
 
-const NotificationContext = createContext<NotificationContextProps>({
-  addNotification: () => {},
-})
+const NotificationContext = createContext<NotificationContextProps | undefined>(
+  undefined,
+)
 
 export const NotificationProvider: FC<PropsWithChildren> = (props) => {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -68,4 +68,14 @@ export const NotificationProvider: FC<PropsWithChildren> = (props) => {
   )
 }
 
-export const UseNotification = () => useContext(NotificationContext)
+export const UseNotification = () => {
+  const notificationContext = useContext(NotificationContext)
+
+  if (!notificationContext) {
+    throw new Error(
+      'UseNotification must to be used within <NotificationProvider>',
+    )
+  }
+
+  return notificationContext
+}
