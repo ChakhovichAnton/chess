@@ -5,12 +5,14 @@ const ErrorPage = () => {
       <p className="text-xl mt-4">
         Something went wrong. Please try again later.
       </p>
-      <a
-        href="/"
-        className="mt-6 px-6 py-3 bg-light-blue rounded-md hover:brightness-110"
-      >
-        Go Home
-      </a>
+      <div className="mt-12">
+        <a
+          href="/"
+          className="px-6 py-3 bg-light-blue rounded-md hover:brightness-110"
+        >
+          Go Home
+        </a>
+      </div>
     </div>
   )
 }
