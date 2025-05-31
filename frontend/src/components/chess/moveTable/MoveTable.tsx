@@ -21,7 +21,7 @@ const MoveTable: FC<MoveTableProps> = (props) => {
   return (
     <div
       ref={scrollRef}
-      className="max-h-[50vh] md:max-h-[80vh] min-w-[250px] overflow-y-scroll custom-scroll border-y-1 border-black"
+      className="max-h-[50vh] md:max-h-[80vh] min-w-[250px] overflow-y-auto custom-scroll border-y-1 border-black"
     >
       <table className="w-full text-gray-200 font-medium">
         <tbody>
