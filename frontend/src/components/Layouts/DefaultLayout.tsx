@@ -6,7 +6,7 @@ const DefaultLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <>
       <Navbar />
-      <main className="pt-32 pb-2 bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen h-full">
+      <main className="pt-32 pb-2 bg-gradient-to-br from-gray-900 to-gray-800 min-h-screen h-full flex">
         {children}
       </main>
       <Footer />

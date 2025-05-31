@@ -1,6 +1,6 @@
 const ErrorPage = () => {
   return (
-    <div className="text-white text-center flex flex-col justify-center items-center mt-32">
+    <div className="text-white text-center m-auto">
       <h1 className="text-6xl font-bold">Oops!</h1>
       <p className="text-xl mt-4">
         Something went wrong. Please try again later.

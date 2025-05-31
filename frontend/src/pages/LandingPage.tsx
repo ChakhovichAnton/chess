@@ -9,7 +9,7 @@ const LandingPage = () => {
   const { loading, user } = useAuth()
 
   return (
-    <div className="flex justify-center px-2 min-h-full">
+    <div className="flex justify-center px-2 min-h-full w-full">
       <FloatingChessPieces />
       <div className="max-w-6xl w-full pt-16 z-1">
         <div className="flex justify-between gap-2">
