@@ -16,7 +16,12 @@ class GameView(View):
 
 class UserGameView(View):
     def get(self, request, id):
-        games = ChessGame.objects.filter(Q(user_white_id=id) | Q(user_black_id=id)).annotate(move_count=Count('chess_moves'))
+        games = (
+            ChessGame.objects
+            .filter(Q(user_white_id=id) | Q(user_black_id=id))
+            .annotate(move_count=Count('chess_moves'))
+            .order_by('-created_at')
+        )
 
         serializer = ChessGameSerializer(games, many=True)
         return JsonResponse(serializer.data, safe=False)
