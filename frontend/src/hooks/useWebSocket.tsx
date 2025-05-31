@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { LOCAL_STORAGE_ACCESS_TOKEN } from '../constants'
 import { refreshAccessToken } from '../utils/accessToken'
-import { UseNotification } from '../contexts/NotificationContext'
+import { useNotification } from '../contexts/NotificationContext'
 
 type Status = 'loading' | 'error' | 'connected' | 'disconnected'
 
@@ -18,7 +18,7 @@ export const UseWebSocket = (
   onClose?: () => any,
   onError?: () => any,
 ) => {
-  const { addNotification } = UseNotification()
+  const { addNotification } = useNotification()
   const [status, setStatus] = useState<Status>('disconnected')
   const socketRef = useRef<WebSocket | undefined>(undefined)
   const retryRef = useRef(false) // If connection retry has been attempted; for example, due to invalid credentials

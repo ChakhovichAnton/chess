@@ -8,6 +8,7 @@ import Register from './pages/Register'
 import DefaultLayout from './components/layouts/DefaultLayout'
 import GameLayout from './components/layouts/GameLayout'
 import { NotificationProvider } from './contexts/NotificationContext'
+import { DialogProvider } from './contexts/DialogContext'
 
 const App = () => {
   return (
@@ -27,7 +28,9 @@ const App = () => {
             <ProtectedRoute>
               <GameLayout>
                 <NotificationProvider>
-                  <ChessGamePage />
+                  <DialogProvider>
+                    <ChessGamePage />
+                  </DialogProvider>
                 </NotificationProvider>
               </GameLayout>
             </ProtectedRoute>

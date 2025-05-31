@@ -1,19 +1,34 @@
-import { useState, useEffect } from 'react'
-import { GameWithMoves, GameStatus, Move } from '../types'
+import { useState, useEffect, useRef } from 'react'
+import { GameWithMoves, GameStatus, Move, User } from '../types'
 import { validateChessMove } from '../utils/validators/chess'
 import { isAxiosError } from 'axios'
 import api from '../utils/axios'
 import { UseWebSocket } from './useWebSocket'
-import { UseNotification } from '../contexts/NotificationContext'
+import { useNotification } from '../contexts/NotificationContext'
+import { useDialog } from '../contexts/DialogContext'
+import { GameEndDialog } from '../components/chess/GameEndDialog'
+import { useAuth } from '../contexts/AuthContext'
 
 type Status = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
 
 export const UseChessGame = (gameId: number) => {
-  const { addNotification } = UseNotification()
+  const { user } = useAuth()
+  const { addNotification } = useNotification()
+  const { openDialog } = useDialog()
   const [status, setStatus] = useState<Status>('loading')
   const [gameState, setGameState] = useState<GameWithMoves | undefined>(
     undefined,
   )
+
+  // Additional refs to access the values in the onMessage handler
+  const userRef = useRef<User | undefined>(undefined)
+  const gameStateRef = useRef<GameWithMoves | undefined>(undefined)
+  useEffect(() => {
+    gameStateRef.current = gameState
+  }, [gameState])
+  useEffect(() => {
+    userRef.current = user
+  }, [userRef])
 
   const onMessage = (event: MessageEvent<any>) => {
     const data = JSON.parse(event.data)
@@ -23,17 +38,14 @@ export const UseChessGame = (gameId: number) => {
       setGameState(game)
     } else if (data.action === 'newMove') {
       const newMove = data.newMove as Move
+      const gameStatus = data.gameStatus as GameStatus
 
       setGameState((prev) => {
         if (!prev) return
         const moveIsValid = validateChessMove(prev.fen, newMove.moveText)
 
-        // If move is invalid, reopen the connection
-        if (!moveIsValid) {
-          disconnect()
-          connect()
-          return
-        }
+        // If move is invalid, reload the page
+        if (!moveIsValid) window.location.reload()
 
         return {
           ...prev,
@@ -41,6 +53,24 @@ export const UseChessGame = (gameId: number) => {
           fen: data.fen as string,
         } satisfies GameWithMoves
       })
+
+      // If the game has ended
+      if (gameStatus !== 'O') {
+        const user = userRef.current
+        const gameState = gameStateRef.current
+        const isWhite = gameState && gameState.userWhite.id === user?.id
+        const isBlack = gameState && gameState.userBlack.id === user?.id
+
+        setStatus('finished')
+        openDialog(
+          <GameEndDialog
+            userType={isWhite ? 'white' : isBlack ? 'black' : 'spectator'}
+            white={gameState?.userWhite}
+            black={gameState?.userBlack}
+            result={gameStatus}
+          />,
+        )
+      }
     } else if (data.action === 'error') {
       const errorMessage = data.error as string
       addNotification(errorMessage, 'error')
@@ -57,7 +87,7 @@ export const UseChessGame = (gameId: number) => {
     setGameState(undefined)
   }
 
-  const { connect, disconnect, sendMessage } = UseWebSocket(
+  const { sendMessage } = UseWebSocket(
     `game/${gameId}`,
     onMessage,
     status === 'live', // Connect automatically

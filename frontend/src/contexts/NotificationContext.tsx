@@ -68,14 +68,12 @@ export const NotificationProvider: FC<PropsWithChildren> = (props) => {
   )
 }
 
-export const UseNotification = () => {
+export const useNotification = () => {
   const notificationContext = useContext(NotificationContext)
-
   if (!notificationContext) {
     throw new Error(
-      'UseNotification must to be used within <NotificationProvider>',
+      'useNotification must to be used within <NotificationProvider>',
     )
   }
-
   return notificationContext
 }
