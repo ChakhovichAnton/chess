@@ -1,12 +1,34 @@
 import MatchWithOpponent from '../components/MatchWithOpponent'
-import GameTable from '../components/GameTable'
 import { Chessboard as ReactChessboard } from 'react-chessboard'
 import { useAuth } from '../contexts/AuthContext'
 import FloatingChessPieces from '../components/floatingChessPieces/FloatingChessPieces'
 import { NotificationProvider } from '../contexts/NotificationContext'
+import { useEffect, useState } from 'react'
+import ChessGameTable from '../components/chessGameTable/chessGameTable'
+import { MdKeyboardArrowRight } from 'react-icons/md'
+import { Game } from '../types'
+import api from '../utils/axios'
 
 const LandingPage = () => {
-  const { loading, user } = useAuth()
+  const { user, loading: authLoading } = useAuth()
+  const [games, setGames] = useState<Game[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const getGames = async () => {
+      if (authLoading) return
+
+      try {
+        if (user) {
+          const res = await api.get(`/api/chess/games/user/${user.id}/`)
+          setGames(res.data)
+        }
+      } catch (e) {}
+      setLoading(false)
+    }
+
+    getGames()
+  }, [authLoading])
 
   return (
     <div className="flex justify-center px-2 min-h-full w-full">
@@ -21,7 +43,7 @@ const LandingPage = () => {
             <p className="text-2xl max-w-[500px]">
               Play chess online anywhere and at anytime. Login to start playing.
             </p>
-            {!loading && user ? (
+            {!authLoading && user ? (
               <NotificationProvider>
                 <MatchWithOpponent />
               </NotificationProvider>
@@ -44,7 +66,19 @@ const LandingPage = () => {
             />
           </div>
         </div>
-        <GameTable />
+        {user && !loading && (
+          <div className="mt-16 bg-white rounded-md">
+            <h2 className="text-3xl font-semibold px-5 py-2">Previous Games</h2>
+            <ChessGameTable games={games} userId={user.id} />
+            <a
+              className="border-t-[1px] w-full px-5 py-2 flex justify-between hover:bg-gray-100 rounded-b-md"
+              href={`/profile/${user.id}`}
+            >
+              <p>See all games</p>
+              <MdKeyboardArrowRight className="shrink-0" size={30} />
+            </a>
+          </div>
+        )}
       </div>
     </div>
   )

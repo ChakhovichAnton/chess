@@ -1,7 +1,7 @@
 import { FaTimesCircle, FaTrophy, FaHandshake } from 'react-icons/fa'
-import { GameStatus } from '../types'
+import { GameStatus } from '../../types'
 import { CgMediaLive } from 'react-icons/cg'
-import Tooltip from './Tooltip'
+import Tooltip from '../Tooltip'
 
 const Won = () => <FaTrophy className="text-green-500 text-xl" />
 
