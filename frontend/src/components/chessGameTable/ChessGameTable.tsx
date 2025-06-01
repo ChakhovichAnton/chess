@@ -8,10 +8,17 @@ const TABLE_COLUMNS = ['Status', 'Players', 'Date', 'Moves']
 interface GameTableProps {
   games: Game[]
   userId: number
+  disabled?: boolean
 }
 
-const ChessGameTable: FC<GameTableProps> = ({ games, userId }) => {
+const ChessGameTable: FC<GameTableProps> = ({ games, userId, disabled }) => {
   const navigate = useNavigate()
+
+  const onClick = (gameId: number) => {
+    if (!disabled) {
+      navigate(`/game/${gameId}`, { replace: true })
+    }
+  }
 
   return (
     <div className="overflow-x-auto">
@@ -31,9 +38,9 @@ const ChessGameTable: FC<GameTableProps> = ({ games, userId }) => {
         <tbody>
           {games.map((game) => (
             <tr
-              onClick={() => navigate(`/game/${game.id}`, { replace: true })}
+              onClick={() => onClick(game.id)}
               key={game.id}
-              className="bg-white hover:bg-gray-100 hover:cursor-pointer border-t-[1px]"
+              className={`bg-white border-t-[1px] ${disabled ? '' : 'hover:bg-gray-100 hover:cursor-pointer'}`}
             >
               <td className="pl-6">
                 {GameStatusDescription(

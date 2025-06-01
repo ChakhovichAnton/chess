@@ -35,7 +35,7 @@ export interface Game {
 export interface PaginatedGames {
   count: number
   pageCount: number
-  currentPage: number
+  currentPage?: number
   results: Game[]
 }
 

@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 
-from .serializers import LoginTokenObtainPairSerializer
+from .serializers import LoginTokenObtainPairSerializer, UserSerializer
 
 @method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
@@ -28,3 +28,14 @@ class RegisterView(APIView):
 
 class LoginPairView(TokenObtainPairView):
     serializer_class = LoginTokenObtainPairSerializer
+
+class UserView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request, id):
+        try:
+            user = User.objects.get(id=id)
+            serializer = UserSerializer(user)
+            return Response(serializer.data)
+        except User.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)

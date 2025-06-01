@@ -24,13 +24,15 @@ const NextOrPreviousButton: FC<NextOrPreviousButtonProps> = ({
 interface PaginationProps {
   curPage: number
   pageCount: number
-  onPageChange: (newPage: number) => Promise<void>
+  onPageChange: (newPage: number) => void
+  disabled: boolean
 }
 
 const Pagination: FC<PaginationProps> = ({
   curPage,
   pageCount,
   onPageChange,
+  disabled,
 }) => {
   if (pageCount < 1) return null
 
@@ -52,24 +54,25 @@ const Pagination: FC<PaginationProps> = ({
     <div className="flex items-center justify-center space-x-2 mt-6">
       <NextOrPreviousButton
         onClick={() => onPageChange(curPage - 1)}
-        disabled={curPage === 1}
+        disabled={curPage === 1 || disabled}
       >
         Previous
       </NextOrPreviousButton>
-      {createPageArray().map((page) =>
+      {createPageArray().map((page, index) =>
         page === undefined ? (
-          <span key={page} className="px-3 py-1">
+          <span key={index} className="px-3 py-1">
             ...
           </span>
         ) : (
           <button
-            key={page}
+            key={index}
             onClick={() => onPageChange(page)}
             className={`hover:enabled:cursor-pointer px-3 py-1 rounded ${
               page === curPage
                 ? 'bg-light-blue text-white font-medium'
                 : 'hover:bg-gray-200'
             }`}
+            disabled={disabled}
           >
             {page}
           </button>
@@ -77,7 +80,7 @@ const Pagination: FC<PaginationProps> = ({
       )}
       <NextOrPreviousButton
         onClick={() => onPageChange(curPage + 1)}
-        disabled={curPage === pageCount}
+        disabled={curPage === pageCount || disabled}
       >
         Next
       </NextOrPreviousButton>
