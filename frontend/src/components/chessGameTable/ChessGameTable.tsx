@@ -51,11 +51,29 @@ const ChessGameTable: FC<GameTableProps> = ({ games, userId, disabled }) => {
               <td className="pl-6 py-2 flex flex-col">
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-white border rounded-[2px]"></div>
-                  {game.userWhite.username}
+                  {disabled ? (
+                    game.userWhite.username
+                  ) : (
+                    <a
+                      href={`/profile/${game.userWhite.id}`}
+                      className="hover:underline"
+                    >
+                      {game.userWhite.username}
+                    </a>
+                  )}
                 </div>
                 <div className="flex items-center gap-1">
                   <div className="w-2 h-2 bg-black border rounded-[2px]"></div>
-                  {game.userBlack.username}
+                  {disabled ? (
+                    game.userBlack.username
+                  ) : (
+                    <a
+                      href={`/profile/${game.userBlack.id}`}
+                      className="hover:underline"
+                    >
+                      {game.userBlack.username}
+                    </a>
+                  )}
                 </div>
               </td>
               <td className="pl-6">
