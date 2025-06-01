@@ -52,7 +52,7 @@ const ChessGameTable: FC<GameTableProps> = ({ games, userId }) => {
                 </div>
               </td>
               <td className="pl-6">
-                {new Date(game.createdAt).toDateString()}
+                {new Date(game.createdAt).toLocaleDateString()}
               </td>
               <td className="pl-6">{game.moveCount}</td>
             </tr>

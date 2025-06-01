@@ -9,6 +9,7 @@ import DefaultLayout from './components/layouts/DefaultLayout'
 import GameLayout from './components/layouts/GameLayout'
 import { NotificationProvider } from './contexts/NotificationContext'
 import { DialogProvider } from './contexts/DialogContext'
+import ProfilePage from './pages/ProfilePage'
 
 const App = () => {
   return (
@@ -34,6 +35,14 @@ const App = () => {
                 </NotificationProvider>
               </GameLayout>
             </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile/:id"
+          element={
+            <DefaultLayout>
+              <ProfilePage />
+            </DefaultLayout>
           }
         />
         <Route

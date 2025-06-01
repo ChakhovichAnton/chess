@@ -4,9 +4,9 @@ import { useAuth } from '../contexts/AuthContext'
 import FloatingChessPieces from '../components/floatingChessPieces/FloatingChessPieces'
 import { NotificationProvider } from '../contexts/NotificationContext'
 import { useEffect, useState } from 'react'
-import ChessGameTable from '../components/chessGameTable/chessGameTable'
+import ChessGameTable from '../components/chessGameTable/ChessGameTable'
 import { MdKeyboardArrowRight } from 'react-icons/md'
-import { Game } from '../types'
+import { Game, PaginatedGames } from '../types'
 import api from '../utils/axios'
 
 const LandingPage = () => {
@@ -20,8 +20,9 @@ const LandingPage = () => {
 
       try {
         if (user) {
-          const res = await api.get(`/api/chess/games/user/${user.id}/`)
-          setGames(res.data)
+          const res = await api.get(`/api/chess/games/user/${user.id}/?page=1`)
+          const data = res.data as PaginatedGames
+          setGames(data.results)
         }
       } catch (e) {}
       setLoading(false)

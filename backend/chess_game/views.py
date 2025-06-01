@@ -1,6 +1,7 @@
 from django.http import JsonResponse, Http404
 from django.views import View
 from django.db.models import Q, Count
+from django.core.paginator import Paginator
 
 from .models import ChessGame
 from .serializers import ChessGameSerializerWithMoves, ChessGameSerializer
@@ -15,7 +16,11 @@ class GameView(View):
         return JsonResponse(serializer.data, safe=False)
 
 class UserGameView(View):
+    page_size = 10
+
     def get(self, request, id):
+        page = int(request.GET.get("page", 1))
+
         games = (
             ChessGame.objects
             .filter(Q(user_white_id=id) | Q(user_black_id=id))
@@ -23,5 +28,22 @@ class UserGameView(View):
             .order_by('-created_at')
         )
 
-        serializer = ChessGameSerializer(games, many=True)
-        return JsonResponse(serializer.data, safe=False)
+        paginator = Paginator(games, self.page_size)
+
+        # If the page is invalid, return an empty response
+        if page < 1 or page > paginator.num_pages:
+            return JsonResponse({
+                "count": paginator.count,
+                "pageCount": paginator.num_pages,
+                "results": [],
+            }, safe=False)
+
+        page_obj = paginator.get_page(page)
+        serializer = ChessGameSerializer(page_obj.object_list, many=True)
+
+        return JsonResponse({
+            "count": paginator.count,
+            "pageCount": paginator.num_pages,
+            "currentPage": page_obj.number,
+            "results": serializer.data,
+        }, safe=False)

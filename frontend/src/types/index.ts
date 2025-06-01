@@ -32,6 +32,13 @@ export interface Game {
   status: GameStatus
 }
 
+export interface PaginatedGames {
+  count: number
+  pageCount: number
+  currentPage: number
+  results: Game[]
+}
+
 export interface GameWithMoves extends Omit<Game, 'moveCount'> {
   chessMoves: Move[]
 }
