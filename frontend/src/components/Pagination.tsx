@@ -14,7 +14,7 @@ const NextOrPreviousButton: FC<NextOrPreviousButtonProps> = ({
     <button
       onClick={onClick}
       disabled={disabled}
-      className="hover:enabled:cursor-pointer disabled:hover:cursor-not-allowed px-4 py-2 bg-white rounded hover:enabled:bg-gray-200 disabled:opacity-60"
+      className="hover:enabled:cursor-pointer disabled:hover:cursor-not-allowed px-2 sm:px-4 py-2 bg-white rounded hover:enabled:bg-gray-200 disabled:opacity-60"
     >
       {children}
     </button>
@@ -51,7 +51,7 @@ const Pagination: FC<PaginationProps> = ({
   }
 
   return (
-    <div className="flex items-center justify-center space-x-2 mt-6">
+    <div className="flex items-center justify-center space-x-1 sm:space-x-2 mt-6">
       <NextOrPreviousButton
         onClick={() => onPageChange(curPage - 1)}
         disabled={curPage === 1 || disabled}
@@ -60,17 +60,17 @@ const Pagination: FC<PaginationProps> = ({
       </NextOrPreviousButton>
       {createPageArray().map((page, index) =>
         page === undefined ? (
-          <span key={index} className="px-3 py-1">
+          <span key={index} className="p-1 select-none">
             ...
           </span>
         ) : (
           <button
             key={index}
             onClick={() => onPageChange(page)}
-            className={`hover:enabled:cursor-pointer px-3 py-1 rounded ${
+            className={`hover:enabled:cursor-pointer aspect-square min-w-10 rounded ${
               page === curPage
                 ? 'bg-light-blue text-white font-medium'
-                : 'hover:bg-gray-200'
+                : 'hover:brightness-120 bg-background-gray-light'
             }`}
             disabled={disabled}
           >
