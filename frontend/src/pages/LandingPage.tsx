@@ -1,5 +1,4 @@
 import MatchWithOpponent from '../components/MatchWithOpponent'
-import { Chessboard as ReactChessboard } from 'react-chessboard'
 import { useAuth } from '../contexts/AuthContext'
 import FloatingChessPieces from '../components/floatingChessPieces/FloatingChessPieces'
 import { NotificationProvider } from '../contexts/NotificationContext'
@@ -8,6 +7,7 @@ import ChessGameTable from '../components/chessGameTable/ChessGameTable'
 import { MdKeyboardArrowRight } from 'react-icons/md'
 import { Game, PaginatedGames } from '../types'
 import api from '../utils/axios'
+import StaticChessboard from '../components/chess/StaticChessboard'
 
 const LandingPage = () => {
   const { user, loading: authLoading } = useAuth()
@@ -58,13 +58,7 @@ const LandingPage = () => {
             )}
           </div>
           <div className="hidden md:flex max-w-sm lg:max-w-md xl:max-w-lg p-1 w-full h-fit bg-brown rounded-md">
-            <ReactChessboard
-              // Static chessboard
-              onSquareClick={() => {}}
-              areArrowsAllowed={false}
-              arePiecesDraggable={false}
-              showBoardNotation={false}
-            />
+            <StaticChessboard showBoardScreenWidthPx={768} />
           </div>
         </div>
         {user && !loading && (
