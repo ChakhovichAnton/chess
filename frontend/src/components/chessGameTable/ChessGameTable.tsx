@@ -40,7 +40,7 @@ const ChessGameTable: FC<GameTableProps> = ({ games, userId, disabled }) => {
             <tr
               onClick={() => onClick(game.id)}
               key={game.id}
-              className={`bg-white border-t-[1px] ${disabled ? '' : 'hover:bg-gray-100 hover:cursor-pointer'}`}
+              className={`bg-background-gray-medium border-t-[1px] ${disabled ? '' : 'hover:bg-gray-100 hover:cursor-pointer'}`}
             >
               <td className="pl-6">
                 {GameStatusDescription(
