@@ -6,7 +6,7 @@ export const validateChessMove = (fen: string, moveString: string) => {
     chess.move(moveString) // Throws an exception if move is invalid
 
     return true
-  } catch (error) {
+  } catch {
     return false
   }
 }

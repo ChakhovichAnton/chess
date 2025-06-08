@@ -18,7 +18,7 @@ export const refreshAccessToken = async () => {
 
     localStorage.setItem(LOCAL_STORAGE_ACCESS_TOKEN, data.access)
     return data.access as string
-  } catch (err) {
+  } catch {
     localStorage.removeItem(LOCAL_STORAGE_ACCESS_TOKEN)
     localStorage.removeItem(LOCAL_STORAGE_REFRESH_TOKEN)
   }
