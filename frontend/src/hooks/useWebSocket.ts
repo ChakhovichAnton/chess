@@ -11,7 +11,7 @@ type Status = 'loading' | 'error' | 'connected' | 'disconnected'
  * @param onMessage callback for WebSocket
  * @param autoConnect set to true, if the WebSocket should be automatically connected
  */
-export const UseWebSocket = (
+const useWebSocket = (
   path: string,
   onMessage: (ev: MessageEvent) => void,
   autoConnect?: boolean,
@@ -86,3 +86,5 @@ export const UseWebSocket = (
 
   return { sendMessage, status, connect: initializeSocket, disconnect }
 }
+
+export default useWebSocket

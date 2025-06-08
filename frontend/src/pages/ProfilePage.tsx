@@ -9,7 +9,7 @@ import { User } from '../types'
 import { CgProfile } from 'react-icons/cg'
 import Pagination from '../components/Pagination'
 import ChessGameTable from '../components/chessGameTable/ChessGameTable'
-import { useGetGameHistory } from '../hooks/useGetGameHistory'
+import useGetGameHistory from '../hooks/useGetGameHistory'
 import { isAxiosError } from 'axios'
 
 type Status = 'notFound' | 'error' | 'loading' | 'success'

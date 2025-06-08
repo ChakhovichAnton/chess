@@ -3,18 +3,22 @@ import { GameWithMoves, GameStatus, Move, User } from '../types'
 import { validateChessMove } from '../utils/validators/chess'
 import { isAxiosError } from 'axios'
 import api from '../utils/axios'
-import { UseWebSocket } from './useWebSocket'
-import { GameEndDialog } from '../components/chess/GameEndDialog'
+import useWebSocket from './useWebSocket'
 import { useAuth } from '../context/auth'
-import { useDialog } from '../context/dialog'
 import { useNotification } from '../context/notification'
 
 type Status = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
 
-export const UseChessGame = (gameId: number) => {
+const useChessGame = (
+  gameId?: number,
+  openGameEndDialog?: (
+    userType: 'black' | 'white' | 'spectator',
+    result: Exclude<GameStatus, GameStatus.ONGOING>,
+    gameState?: GameWithMoves,
+  ) => void,
+) => {
   const { user } = useAuth()
   const { addNotification } = useNotification()
-  const { openDialog } = useDialog()
   const [status, setStatus] = useState<Status>('loading')
   const [gameState, setGameState] = useState<GameWithMoves | undefined>(
     undefined,
@@ -62,14 +66,13 @@ export const UseChessGame = (gameId: number) => {
         const isBlack = gameState && gameState.userBlack.id === user?.id
 
         setStatus('finished')
-        openDialog(
-          <GameEndDialog
-            userType={isWhite ? 'white' : isBlack ? 'black' : 'spectator'}
-            white={gameState?.userWhite}
-            black={gameState?.userBlack}
-            result={gameStatus}
-          />,
-        )
+        if (openGameEndDialog) {
+          openGameEndDialog(
+            isWhite ? 'white' : isBlack ? 'black' : 'spectator',
+            gameStatus,
+            gameState,
+          )
+        }
       }
     } else if (data.action === 'error') {
       const errorMessage = data.error as string
@@ -87,10 +90,10 @@ export const UseChessGame = (gameId: number) => {
     setGameState(undefined)
   }
 
-  const { sendMessage } = UseWebSocket(
+  const { sendMessage } = useWebSocket(
     `game/${gameId}`,
     onMessage,
-    status === 'live', // Connect automatically
+    status === 'live', // Connect automatically if game is live
     onClose,
     onError,
   )
@@ -128,3 +131,5 @@ export const UseChessGame = (gameId: number) => {
 
   return { gameState, makeMove, status }
 }
+
+export default useChessGame

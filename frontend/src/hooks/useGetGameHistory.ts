@@ -12,7 +12,7 @@ interface GamePageData {
 
 type Status = 'loading' | 'success' | 'notFound' | 'error'
 
-export const useGetGameHistory = (userId?: number) => {
+const useGetGameHistory = (userId?: number) => {
   const [status, setStatus] = useState<Status>('loading')
   const [gamePageData, setGamePageData] = useState<GamePageData | undefined>(
     undefined,
@@ -59,3 +59,5 @@ export const useGetGameHistory = (userId?: number) => {
 
   return { status, getGames, gamePageData }
 }
+
+export default useGetGameHistory

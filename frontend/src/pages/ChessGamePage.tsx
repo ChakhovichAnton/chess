@@ -3,20 +3,40 @@ import NotFound from './specialPages/NotFound'
 import ErrorPage from './specialPages/ErrorPage'
 import Loading from './specialPages/Loading'
 import Chessboard from '../components/chess/Chessboard'
-import { UseChessGame } from '../hooks/useChessGame'
+import useChessGame from '../hooks/useChessGame'
 import { validateInteger } from '../utils/validators/integer'
 import MoveTable from '../components/chess/moveTable/MoveTable'
-import { GameStatus } from '../types'
+import { GameStatus, GameWithMoves } from '../types'
+import { useDialog } from '../context/dialog'
+import { GameEndDialog } from '../components/chess/GameEndDialog'
 
 const ChessGamePage = () => {
   // Validate gameId
   const { id: gameIdString } = useParams()
   const gameId = validateInteger(gameIdString)
-  if (gameId === undefined) return NotFound()
+  const { openDialog } = useDialog()
 
-  const { gameState, makeMove, status } = UseChessGame(gameId)
+  const openGameEndDialog = (
+    userType: 'black' | 'white' | 'spectator',
+    result: Exclude<GameStatus, GameStatus.ONGOING>,
+    gameState?: GameWithMoves,
+  ) => {
+    openDialog(
+      <GameEndDialog
+        userType={userType}
+        white={gameState?.userWhite}
+        black={gameState?.userBlack}
+        result={result}
+      />,
+    )
+  }
 
-  if (status === 'notFound') return NotFound()
+  const { gameState, makeMove, status } = useChessGame(
+    gameId,
+    openGameEndDialog,
+  )
+
+  if (status === 'notFound' || gameId === undefined) return NotFound()
   if (status === 'error') return ErrorPage()
   if (status === 'loading' || !gameState) return Loading()
 

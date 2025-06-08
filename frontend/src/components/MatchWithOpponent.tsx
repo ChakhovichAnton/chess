@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom'
-import { UseWebSocket } from '../hooks/useWebSocket'
+import useWebSocket from '../hooks/useWebSocket'
 import Dialog from './Dialog'
 
 const MatchWithOpponent = () => {
   const navigate = useNavigate()
-  const { connect, disconnect, status } = UseWebSocket(
+  const { connect, disconnect, status } = useWebSocket(
     'match',
     (event) => navigate(`/game/${JSON.parse(event.data).gameId}`), // onMessage
   )
