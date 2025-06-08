@@ -1,12 +1,14 @@
 import json
 import chess
 from django.db import connection, transaction
+from django.contrib.auth.models import User
 from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from chess_game.models import WaitingUserForGame, ChessGame, ChessMove#, DrawOffers
+from chess_game.models import WaitingUserForGame, ChessGame, ChessMove, DrawOffers
 from chess_game.serializers import ChessGameSerializerWithMoves, ChessMoveSerializer
+from account.serializers import UserSerializer
 
 class MatchConsumer(AsyncWebsocketConsumer):
     """Matches two users and creates a game of chess between the users"""
@@ -94,6 +96,14 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.game_group_name, self.channel_name)
         await self.send(text_data=json.dumps({"action": "gameState", "gameState": game_state}))
 
+        # Send active draw requests separately
+        draw = await self.find_draw_request()
+        if draw is not None:
+            await self.channel_layer.group_send(self.game_group_name, {
+                'type': 'draw_offer',
+                'message': json.dumps(draw),
+            })
+
     async def disconnect(self, close_code):
         """Leave the current group"""
         if self.game_group_name is not None:
@@ -118,7 +128,7 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
                     'type': 'new_move',
                     'message': json.dumps(res),
                 })
-        """elif action == 'draw':
+        elif action == 'draw':
             res = await self.draw()
 
             if res['action'] == 'error':
@@ -127,12 +137,12 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
                 await self.channel_layer.group_send(self.game_group_name, {
                     'type': 'draw_offer',
                     'message': json.dumps(res),
-                })"""
+                })
 
     async def new_move(self, event):
         await self.send(text_data=event["message"])
 
-    """async def draw_offer(self, event):
+    async def draw_offer(self, event):
         await self.send(text_data=event["message"])
 
     @database_sync_to_async
@@ -151,17 +161,39 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
                 return {'action': 'error', 'error': 'You cannot make draw requests'}
             
             try:
-                draw = DrawOffers.objects.get(game_id=self.game_id, is_active=True, accepted=False)
+                drawOffer = DrawOffers.objects.get(game=game, is_active=True, accepted=False)
+                if drawOffer.user is None:
+                    return {'action': 'error', 'error': 'The user who made the draw request does not exist anymore'}
             except DrawOffers.DoesNotExist:
-                DrawOffers.objects.create(game_id=self.game_id, user_id=self.user.id)
-                return {'action': 'drawOffer', 'by': self.user.id}
+                try:
+                    user = User.objects.get(id=self.user.id)
+                    serializer = UserSerializer(user)
+                    DrawOffers.objects.create(game=game, user_id=self.user.id)
 
-            if other_user is not None and draw.user.id == other_user.id:
-                DrawOffers.objects.get(id=draw.id).update(accepted=True)
+                    return {'action': 'drawOffer', 'by': serializer.data}
+                except User.DoesNotExist:
+                    return {'action': 'error', 'error': 'User does not exist'}
+
+            if other_user is not None and drawOffer.user.id == other_user.id:
+                DrawOffers.objects.filter(id=drawOffer.id).update(accepted=True)
+                game.status = ChessGame.GameStatus.DRAW
+                game.save()
                 return {'action': 'drawAccepted'}
             else:
-                DrawOffers.objects.get(id=draw.id).update(is_active=False)
-                return {'action': 'drawOfferDeactivated'}"""
+                DrawOffers.objects.filter(id=drawOffer.id).update(is_active=False)
+                return {'action': 'drawOfferDeactivated'}
+            
+    @database_sync_to_async
+    def find_draw_request(self):
+        try:
+            game = ChessGame.objects.get(id=self.game_id, status=ChessGame.GameStatus.ONGOING)
+            drawOffer = DrawOffers.objects.get(game=game, is_active=True, accepted=False)
+            if drawOffer.user is None:
+                return None
+            serializer = UserSerializer(drawOffer.user)
+            return {'action': 'drawOffer', 'by': serializer.data}
+        except:
+            return None
 
 
     @database_sync_to_async

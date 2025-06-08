@@ -31,10 +31,9 @@ class ChessMove(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 # TODO: add clocks
-"""
+
 class DrawOffers(models.Model):
-    game_id = models.ForeignKey(ChessGame, on_delete=models.CASCADE)
+    game = models.ForeignKey(ChessGame, on_delete=models.CASCADE)
     user = models.ForeignKey(User, null=True, on_delete=models.SET_NULL) # Player who offered the draw
     is_active = models.BooleanField(default=True) # Player has not cancelled the offer
     accepted = models.BooleanField(default=False)
-"""

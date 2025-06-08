@@ -24,6 +24,9 @@ const useChessGame = (
     undefined,
   )
 
+  // Undefined means that there is no draw request
+  const [drawRequest, setDrawRequest] = useState<User | undefined>(undefined)
+
   // Additional refs to access the values in the onMessage handler
   const userRef = useRef<User | undefined>(undefined)
   const gameStateRef = useRef<GameWithMoves | undefined>(undefined)
@@ -77,6 +80,35 @@ const useChessGame = (
     } else if (data.action === 'error') {
       const errorMessage = data.error as string
       addNotification(errorMessage, 'error')
+    } else if (data.action === 'drawOffer') {
+      const maker = data.by as User
+      setDrawRequest(maker)
+      if (maker.id !== userRef.current?.id) {
+        addNotification('New draw request', 'info')
+      }
+    } else if (data.action === 'drawAccepted') {
+      const user = userRef.current // TODO: refactor code
+      const gameState = gameStateRef.current
+      const isWhite = gameState && gameState.userWhite.id === user?.id
+      const isBlack = gameState && gameState.userBlack.id === user?.id
+
+      setStatus('finished')
+      setGameState((prev) => {
+        if (!prev) return
+        return {
+          ...prev,
+          status: GameStatus.DRAW,
+        } satisfies GameWithMoves
+      })
+      if (openGameEndDialog) {
+        openGameEndDialog(
+          isWhite ? 'white' : isBlack ? 'black' : 'spectator',
+          GameStatus.DRAW,
+          gameState,
+        )
+      }
+    } else if (data.action === 'drawOfferDeactivated') {
+      setDrawRequest(undefined)
     }
   }
 
@@ -129,7 +161,12 @@ const useChessGame = (
     sendMessage({ action: 'move', move })
   }
 
-  return { gameState, makeMove, status }
+  const drawAction = () => {
+    setDrawRequest((prev) => (prev ? undefined : userRef.current))
+    sendMessage({ action: 'draw' })
+  }
+
+  return { gameState, makeMove, status, drawAction, drawRequest }
 }
 
 export default useChessGame
