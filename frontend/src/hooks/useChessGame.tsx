@@ -4,10 +4,10 @@ import { validateChessMove } from '../utils/validators/chess'
 import { isAxiosError } from 'axios'
 import api from '../utils/axios'
 import { UseWebSocket } from './useWebSocket'
-import { useNotification } from '../contexts/NotificationContext'
-import { useDialog } from '../contexts/DialogContext'
 import { GameEndDialog } from '../components/chess/GameEndDialog'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../context/auth'
+import { useDialog } from '../context/dialog'
+import { useNotification } from '../context/notification'
 
 type Status = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
 
@@ -28,10 +28,10 @@ export const UseChessGame = (gameId: number) => {
   }, [gameState])
   useEffect(() => {
     userRef.current = user
-  }, [userRef])
+  }, [user])
 
-  const onMessage = (event: MessageEvent<any>) => {
-    const data = JSON.parse(event.data)
+  const onMessage = (event: MessageEvent<unknown>) => {
+    const data = JSON.parse(event.data as string)
 
     if (data.action === 'gameState') {
       const game = data.gameState as GameWithMoves
@@ -97,8 +97,7 @@ export const UseChessGame = (gameId: number) => {
 
   // Check if game is live or finished
   useEffect(() => {
-    // Do not initialize another connection if game is already live
-    if (status === 'live') return
+    if (status !== 'loading') return
 
     const initChessGame = async () => {
       try {
@@ -121,7 +120,7 @@ export const UseChessGame = (gameId: number) => {
     }
 
     initChessGame()
-  }, [gameId])
+  }, [gameId, status])
 
   const makeMove = (move: string) => {
     sendMessage({ action: 'move', move })

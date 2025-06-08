@@ -1,7 +1,7 @@
 import MatchWithOpponent from '../components/MatchWithOpponent'
-import { useAuth } from '../contexts/AuthContext'
+import { useAuth } from '../context/auth'
 import FloatingChessPieces from '../components/floatingChessPieces/FloatingChessPieces'
-import { NotificationProvider } from '../contexts/NotificationContext'
+import { NotificationProvider } from '../context/notification'
 import { useEffect, useState } from 'react'
 import ChessGameTable from '../components/chessGameTable/ChessGameTable'
 import { MdKeyboardArrowRight } from 'react-icons/md'
@@ -16,20 +16,21 @@ const LandingPage = () => {
 
   useEffect(() => {
     const getGames = async () => {
-      if (authLoading) return
+      if (authLoading || !user) return
 
       try {
-        if (user) {
-          const res = await api.get(`/api/chess/games/user/${user.id}/?page=1`)
-          const data = res.data as PaginatedGames
-          setGames(data.results)
-        }
-      } catch (e) {}
-      setLoading(false)
+        const res = await api.get(`/api/chess/games/user/${user.id}/?page=1`)
+        const data = res.data as PaginatedGames
+        setGames(data.results)
+      } catch {
+        // Intentionally empty
+      } finally {
+        setLoading(false)
+      }
     }
 
     getGames()
-  }, [authLoading])
+  }, [authLoading, user])
 
   return (
     <div className="flex justify-center px-2 min-h-full w-full">
@@ -61,7 +62,7 @@ const LandingPage = () => {
             <StaticChessboard showBoardScreenWidthPx={768} />
           </div>
         </div>
-        {user && !loading && (
+        {user && !loading && games.length > 0 && (
           <div className="mt-16 bg-white rounded-md">
             <h2 className="text-3xl font-semibold px-5 py-2">Previous Games</h2>
             <ChessGameTable games={games} userId={user.id} />

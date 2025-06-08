@@ -5,8 +5,8 @@ import AuthLayout from '../components/auth/AuthLayout'
 import AuthInput from '../components/auth/AuthInput'
 import AuthSubmit from '../components/auth/AuthSubmit'
 import AuthError from '../components/auth/AuthError'
-import { useAuth } from '../contexts/AuthContext'
-
+import { useAuth } from '../context/auth'
+import NotFound from './specialPages/NotFound'
 
 const Login = () => {
   const [username, setUsername] = useState('')
@@ -16,7 +16,7 @@ const Login = () => {
   const errorTimeout = useRef<number | undefined>(undefined)
 
   const navigate = useNavigate()
-  const { login } = useAuth()
+  const { login, user } = useAuth()
 
   const clearError = () => {
     if (error) setError(undefined)
@@ -42,6 +42,8 @@ const Login = () => {
       )
     }
   }
+
+  if (user) return NotFound()
 
   return (
     <AuthLayout title="Login">

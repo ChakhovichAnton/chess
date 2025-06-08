@@ -5,7 +5,7 @@ interface DialogProps extends PropsWithChildren {
   onClose: () => void
 }
 
-const Dialog: FC<DialogProps> = (props) => {
+const Dialog: FC<DialogProps> = ({ isOpen, onClose, children }) => {
   const dialogRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -17,11 +17,11 @@ const Dialog: FC<DialogProps> = (props) => {
         dialogRef.current &&
         !dialogRef.current.contains(event.target as Node | null)
       ) {
-        props.onClose()
+        onClose()
       }
     }
 
-    if (props.isOpen) {
+    if (isOpen) {
       window.addEventListener('click', handleClickOutside)
     } else {
       window.removeEventListener('click', handleClickOutside)
@@ -30,14 +30,14 @@ const Dialog: FC<DialogProps> = (props) => {
     return () => {
       window.removeEventListener('click', handleClickOutside)
     }
-  }, [props.isOpen, props.onClose])
+  }, [isOpen, onClose])
 
-  if (!props.isOpen) return null
+  if (!isOpen) return null
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80">
       <div ref={dialogRef} className="bg-white rounded-2xl p-6 shadow-xl">
-        {props.children}
+        {children}
       </div>
     </div>
   )

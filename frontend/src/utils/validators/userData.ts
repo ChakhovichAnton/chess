@@ -1,5 +1,5 @@
 export const passwordIsValid = (password: string) => {
-  return password.length > 2
+  return password.length > 7
 }
 
 export const usernameIsValid = (username: string) => {

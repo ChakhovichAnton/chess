@@ -18,7 +18,6 @@ const ProfilePage = () => {
   // Validate gameId
   const { id: userIdString } = useParams()
   const userId = validateInteger(userIdString)
-  if (userId === undefined) return NotFound()
 
   const [status, setStatus] = useState<Status>('loading')
   const [username, setUsername] = useState<string | undefined>(undefined)
@@ -29,6 +28,8 @@ const ProfilePage = () => {
   } = useGetGameHistory(userId)
 
   useEffect(() => {
+    if (userId === undefined) return
+
     const getUserData = async () => {
       setStatus('loading')
       try {
@@ -48,7 +49,7 @@ const ProfilePage = () => {
     getUserData()
   }, [userId])
 
-  if (status === 'notFound') return NotFound()
+  if (status === 'notFound' || userId === undefined) return NotFound()
   if (status === 'error') return ErrorPage()
   if (status === 'loading') return Loading()
 

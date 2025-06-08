@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { FaGithub } from 'react-icons/fa6'
 import { IoMenu, IoCloseSharp } from 'react-icons/io5'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../../context/auth'
 
 const MobileNavbarMenu = () => {
   const { user, loading, logout } = useAuth()

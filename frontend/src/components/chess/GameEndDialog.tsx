@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { FaChessKnight } from 'react-icons/fa'
 import { GameStatus, User } from '../../types'
-import { useDialog } from '../../contexts/DialogContext'
+import { useDialog } from '../../context/dialog'
 
 type DialogType = 'win' | 'lose' | 'draw' | 'spectator'
 

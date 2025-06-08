@@ -7,8 +7,8 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import DefaultLayout from './components/layouts/DefaultLayout'
 import GameLayout from './components/layouts/GameLayout'
-import { NotificationProvider } from './contexts/NotificationContext'
-import { DialogProvider } from './contexts/DialogContext'
+import { NotificationProvider } from './context/notification'
+import { DialogProvider } from './context/dialog'
 import ProfilePage from './pages/ProfilePage'
 
 const App = () => {

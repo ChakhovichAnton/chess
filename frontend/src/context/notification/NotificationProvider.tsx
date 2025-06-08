@@ -1,30 +1,10 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  PropsWithChildren,
-  FC,
-} from 'react'
+import { useState, PropsWithChildren, FC } from 'react'
 import { IoCloseSharp } from 'react-icons/io5'
-import { createId } from '../utils/createId'
+import { createId } from '../../utils/createId'
+import { NotificationType, Notification } from './notificationTypes'
+import { NotificationContext } from './notificationContext'
 
 const DISPLAY_TIME_MS = 3000
-
-type NotificationType = 'error' | 'success' | 'info'
-
-interface Notification {
-  id: string
-  message: string
-  type: NotificationType
-}
-
-interface NotificationContextProps {
-  addNotification: (message: string, type: NotificationType) => void
-}
-
-const NotificationContext = createContext<NotificationContextProps | undefined>(
-  undefined,
-)
 
 export const NotificationProvider: FC<PropsWithChildren> = (props) => {
   const [notifications, setNotifications] = useState<Notification[]>([])
@@ -66,14 +46,4 @@ export const NotificationProvider: FC<PropsWithChildren> = (props) => {
       </div>
     </NotificationContext.Provider>
   )
-}
-
-export const useNotification = () => {
-  const notificationContext = useContext(NotificationContext)
-  if (!notificationContext) {
-    throw new Error(
-      'useNotification must to be used within <NotificationProvider>',
-    )
-  }
-  return notificationContext
 }

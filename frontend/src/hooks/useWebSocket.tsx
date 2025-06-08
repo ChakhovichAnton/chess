@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { LOCAL_STORAGE_ACCESS_TOKEN } from '../constants'
 import { refreshAccessToken } from '../utils/accessToken'
-import { useNotification } from '../contexts/NotificationContext'
+import { useNotification } from '../context/notification'
 
 type Status = 'loading' | 'error' | 'connected' | 'disconnected'
 
@@ -13,10 +13,10 @@ type Status = 'loading' | 'error' | 'connected' | 'disconnected'
  */
 export const UseWebSocket = (
   path: string,
-  onMessage: (ev: MessageEvent) => any,
+  onMessage: (ev: MessageEvent) => void,
   autoConnect?: boolean,
-  onClose?: () => any,
-  onError?: () => any,
+  onClose?: () => void,
+  onError?: () => void,
 ) => {
   const { addNotification } = useNotification()
   const [status, setStatus] = useState<Status>('disconnected')

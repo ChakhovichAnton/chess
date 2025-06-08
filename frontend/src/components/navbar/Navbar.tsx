@@ -1,5 +1,5 @@
 import { FaChessKing, FaGithub } from 'react-icons/fa6'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../../context/auth'
 import NavbarButton from './NavbarButton'
 import NavbarLink from './NavbarLink'
 import MobileNavbarMenu from './MobileNavbarMenu'

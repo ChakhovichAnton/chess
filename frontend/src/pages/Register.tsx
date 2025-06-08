@@ -7,8 +7,13 @@ import AuthError from '../components/auth/AuthError'
 import { passwordIsValid, usernameIsValid } from '../utils/validators/userData'
 import api from '../utils/axios'
 import { ERROR_REMOVAL_TIME_MS } from '../constants'
+import { useAuth } from '../context/auth'
+import NotFound from './specialPages/NotFound'
+
+const DEFAULT_ERROR = 'An unexpected error occurred. Please try again.'
 
 const Register = () => {
+  const { user } = useAuth()
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmationPassword] = useState('')
@@ -41,7 +46,7 @@ const Register = () => {
       )
       return
     } else if (!passwordIsValid(password)) {
-      setError('Password must be at least 3 characters long')
+      setError('Password must be at least 8 characters long')
       // Clear error after some time
       errorTimeout.current = setTimeout(
         () => setError(undefined),
@@ -56,10 +61,14 @@ const Register = () => {
       setStatus('success')
     } catch (error) {
       if (axios.isAxiosError(error)) {
-        const errorMessage = error.response?.data.error as string
-        setError(errorMessage || 'Registration failed. Please try again.')
+        const errorMessage = error.response?.data.error
+        if (Array.isArray(errorMessage)) {
+          setError(errorMessage[0] || DEFAULT_ERROR)
+        } else {
+          setError(errorMessage || DEFAULT_ERROR)
+        }
       } else {
-        setError('An unexpected error occurred. Please try again.')
+        setError(DEFAULT_ERROR)
       }
 
       // Clear error after some time
@@ -72,12 +81,19 @@ const Register = () => {
     }
   }
 
+  if (user) return NotFound()
+
   return (
-    <AuthLayout title="Sign Up">
+    <AuthLayout title={status === 'success' ? 'Success!' : 'Sign Up'}>
       {status === 'success' ? (
-        <div>
-          <p>Registration was succesful</p>
-          <a href="/login">Login</a>
+        <div className="space-y-5 flex flex-col items-center">
+          <p>Login to start playing!</p>
+          <a
+            href="/login"
+            className="bg-light-blue hover:brightness-110 disabled:grayscale disabled:brightness-100 text-white rounded-md p-2 hover:cursor-pointer disabled:cursor-default"
+          >
+            Login
+          </a>
         </div>
       ) : (
         <>

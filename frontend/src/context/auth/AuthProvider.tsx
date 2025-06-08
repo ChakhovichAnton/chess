@@ -1,35 +1,21 @@
-import {
-  createContext,
-  useEffect,
-  ReactNode,
-  useState,
-  useContext,
-} from 'react'
+import { useEffect, useState, PropsWithChildren } from 'react'
 import { jwtDecode } from 'jwt-decode'
-import api from '../utils/axios'
+import api from '../../utils/axios'
 import {
   LOCAL_STORAGE_ACCESS_TOKEN,
   LOCAL_STORAGE_REFRESH_TOKEN,
-} from '../constants'
-import { User } from '../types'
-import { refreshAccessToken } from '../utils/accessToken'
-import { validateToken } from '../utils/accessToken'
-import { passwordIsValid, usernameIsValid } from '../utils/validators/userData'
+} from '../../constants'
+import { User } from '../../types'
+import { refreshAccessToken } from '../../utils/accessToken'
+import { validateToken } from '../../utils/accessToken'
+import {
+  passwordIsValid,
+  usernameIsValid,
+} from '../../utils/validators/userData'
+import axios from 'axios'
+import { AuthContext } from './authContext'
 
-interface AuthContextType {
-  user?: User
-  loading: boolean
-  login: (username: string, password: string) => Promise<string | true>
-  logout: () => void
-}
-
-const AuthContext = createContext<AuthContextType | undefined>(undefined)
-
-interface AuthProviderProps {
-  children: ReactNode
-}
-
-export const AuthProvider = (props: AuthProviderProps) => {
+export const AuthProvider = (props: PropsWithChildren) => {
   const [user, setUser] = useState<undefined | User>(undefined)
   const [loading, setLoading] = useState(true)
 
@@ -74,9 +60,10 @@ export const AuthProvider = (props: AuthProviderProps) => {
       localStorage.setItem(LOCAL_STORAGE_REFRESH_TOKEN, response.data.refresh)
 
       return true
-    } catch (error: any) {
-      if (error.response?.status === 401) return 'Invalid username or password'
-
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 401) {
+        return 'Invalid username or password'
+      }
       return 'An unexpected error occurred. Please try again.'
     }
   }
@@ -93,10 +80,4 @@ export const AuthProvider = (props: AuthProviderProps) => {
       {props.children}
     </AuthContext.Provider>
   )
-}
-
-export const useAuth = () => {
-  const context = useContext(AuthContext)
-  if (!context) throw new Error('useAuth must be used within an AuthProvider')
-  return context
 }

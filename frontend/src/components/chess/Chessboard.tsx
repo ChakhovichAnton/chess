@@ -7,7 +7,7 @@ import {
   Piece,
   Square,
 } from 'react-chessboard/dist/chessboard/types'
-import { useAuth } from '../../contexts/AuthContext'
+import { useAuth } from '../../context/auth'
 import ToggleBoardDirectionButton from './ToggleBoardDirectionButton'
 import ToggleValidMovesButton from './ToggleValidMovesButton'
 import GamePlayerProfile from './GamePlayerProfile'
@@ -32,7 +32,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
   const { user, loading } = useAuth()
 
   const [chess, setChess] = useState(new Chess(props.game.fen))
-  const [isPlayerTurn, setIsPlayerTurn] = useState(true)
+  const [isPlayerTurn, setIsPlayerTurn] = useState(false)
   // Default to white while setting the actual orientation in the useEffect
   const [boardOrientation, setBoardOrientation] =
     useState<BoardOrientation>('white')
@@ -55,7 +55,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     setChess(newChess)
     setBoardOrientation(isBlack ? 'black' : 'white')
     setIsPlayerTurn(isPlayerTurn)
-  }, [props.game])
+  }, [props.game, user])
 
   useEffect(() => {
     const updateSize = () => {
@@ -93,7 +93,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
       setIsPlayerTurn(false)
 
       return true
-    } catch (error) {
+    } catch {
       return false
     }
   }
