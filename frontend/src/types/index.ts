@@ -41,6 +41,7 @@ export interface PaginatedGames {
 
 export interface GameWithMoves extends Omit<Game, 'moveCount'> {
   chessMoves: Move[]
+  drawOfferUser: null | User // null means that there is no active draw offer
 }
 
 export type BoardOrientation = 'white' | 'black'

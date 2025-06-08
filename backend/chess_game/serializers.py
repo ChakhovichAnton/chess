@@ -42,6 +42,7 @@ class ChessGameSerializerWithMoves(CamelSnakeSerializer):
     chess_moves = ChessMoveSerializer(many=True, read_only=True)
     user_white = UserSerializer()
     user_black = UserSerializer()
+    draw_offer_user = UserSerializer(read_only=True)
 
     class Meta:
         model = ChessGame
@@ -50,7 +51,7 @@ class ChessGameSerializerWithMoves(CamelSnakeSerializer):
 class ChessGameSerializer(CamelSnakeSerializer):
     user_white = UserSerializer()
     user_black = UserSerializer()
-    move_count = SerializerMethodField()
+    move_count = SerializerMethodField(read_only=True)
 
     class Meta:
         model = ChessGame

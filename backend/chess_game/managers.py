@@ -6,13 +6,18 @@ class ChessGameManager(Manager):
         """Fetch all moves for a specific game."""
 
          # Delay the import to avoid circular import issues
-        from .models import ChessMove
-        
+        from .models import ChessMove, DrawOffers
+
         try:
             game = self.select_related('user_white', 'user_black').prefetch_related(
                 Prefetch('chess_moves', queryset=ChessMove.objects.all().order_by('created_at'))
             ).get(id=game_id)
-            
-            return game
         except ObjectDoesNotExist:
             return None
+
+        try:
+            draw_offer = DrawOffers.objects.get(game=game, is_active=True, accepted=False)
+            game.draw_offer_user = draw_offer.user
+        except ObjectDoesNotExist:
+            game.draw_offer_user = None
+        return game

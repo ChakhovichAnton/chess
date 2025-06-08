@@ -96,14 +96,6 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
         await self.channel_layer.group_add(self.game_group_name, self.channel_name)
         await self.send(text_data=json.dumps({"action": "gameState", "gameState": game_state}))
 
-        # Send active draw requests separately
-        draw = await self.find_draw_request()
-        if draw is not None:
-            await self.channel_layer.group_send(self.game_group_name, {
-                'type': 'draw_offer',
-                'message': json.dumps(draw),
-            })
-
     async def disconnect(self, close_code):
         """Leave the current group"""
         if self.game_group_name is not None:
@@ -182,19 +174,6 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
             else:
                 DrawOffers.objects.filter(id=drawOffer.id).update(is_active=False)
                 return {'action': 'drawOfferDeactivated'}
-            
-    @database_sync_to_async
-    def find_draw_request(self):
-        try:
-            game = ChessGame.objects.get(id=self.game_id, status=ChessGame.GameStatus.ONGOING)
-            drawOffer = DrawOffers.objects.get(game=game, is_active=True, accepted=False)
-            if drawOffer.user is None:
-                return None
-            serializer = UserSerializer(drawOffer.user)
-            return {'action': 'drawOffer', 'by': serializer.data}
-        except:
-            return None
-
 
     @database_sync_to_async
     def get_serialized_game_state(self):

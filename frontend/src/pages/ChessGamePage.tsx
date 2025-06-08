@@ -103,7 +103,7 @@ const ChessGamePage = () => {
             )}
 
             {userIsAPlayer && (
-              <div className="flex justify-between mx-2">
+              <div className="flex justify-between mx-2 mt-2">
                 <Tooltip text="Surrender">
                   <button
                     onClick={() => {}}
