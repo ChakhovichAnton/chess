@@ -17,7 +17,7 @@ const Navbar = () => {
         <div className="hidden xs:flex gap-3 sm:gap-10 items-center">
           {user ? (
             <>
-              <NavbarLink href="/profile" text="Profile" />
+              <NavbarLink href={`/profile/${user.id}`} text="Profile" />
               <NavbarButton onClick={logout} disabled={loading} text="Logout" />
             </>
           ) : (
