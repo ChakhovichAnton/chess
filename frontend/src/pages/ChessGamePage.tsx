@@ -36,10 +36,8 @@ const ChessGamePage = () => {
     )
   }
 
-  const { gameState, makeMove, status, drawAction, drawRequest } = useChessGame(
-    gameId,
-    openGameEndDialog,
-  )
+  const { gameState, makeMove, status, drawAction, drawRequest, surrender } =
+    useChessGame(gameId, openGameEndDialog)
 
   if (status === 'notFound' || gameId === undefined) return NotFound()
   if (status === 'error') return ErrorPage()
@@ -106,7 +104,7 @@ const ChessGamePage = () => {
               <div className="flex justify-between mx-2 mt-2">
                 <Tooltip text="Surrender">
                   <button
-                    onClick={() => {}}
+                    onClick={surrender}
                     className="hover:cursor-pointer bg-background-gray text-white p-0.5 rounded-md w-fit h-fit"
                   >
                     <FaFlag size={20} />

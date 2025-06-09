@@ -37,6 +37,26 @@ const useChessGame = (
     userRef.current = user
   }, [user])
 
+  const endGame = (status: Exclude<GameStatus, GameStatus.ONGOING>) => {
+    const user = userRef.current
+    const gameState = gameStateRef.current
+    const isWhite = gameState && gameState.userWhite.id === user?.id
+    const isBlack = gameState && gameState.userBlack.id === user?.id
+
+    setStatus('finished')
+    setGameState((prev) => {
+      if (!prev) return
+      return { ...prev, status } satisfies GameWithMoves
+    })
+    if (openGameEndDialog) {
+      openGameEndDialog(
+        isWhite ? 'white' : isBlack ? 'black' : 'spectator',
+        status,
+        gameState,
+      )
+    }
+  }
+
   const onMessage = (event: MessageEvent<unknown>) => {
     const data = JSON.parse(event.data as string)
 
@@ -68,20 +88,8 @@ const useChessGame = (
       })
 
       // If the game has ended
-      if (gameStatus !== 'O') {
-        const user = userRef.current
-        const gameState = gameStateRef.current
-        const isWhite = gameState && gameState.userWhite.id === user?.id
-        const isBlack = gameState && gameState.userBlack.id === user?.id
-
-        setStatus('finished')
-        if (openGameEndDialog) {
-          openGameEndDialog(
-            isWhite ? 'white' : isBlack ? 'black' : 'spectator',
-            gameStatus,
-            gameState,
-          )
-        }
+      if (gameStatus !== GameStatus.ONGOING) {
+        endGame(gameStatus)
       }
     } else if (data.action === 'error') {
       const errorMessage = data.error as string
@@ -93,28 +101,11 @@ const useChessGame = (
         addNotification('New draw request', 'info')
       }
     } else if (data.action === 'drawAccepted') {
-      const user = userRef.current // TODO: refactor code
-      const gameState = gameStateRef.current
-      const isWhite = gameState && gameState.userWhite.id === user?.id
-      const isBlack = gameState && gameState.userBlack.id === user?.id
-
-      setStatus('finished')
-      setGameState((prev) => {
-        if (!prev) return
-        return {
-          ...prev,
-          status: GameStatus.DRAW,
-        } satisfies GameWithMoves
-      })
-      if (openGameEndDialog) {
-        openGameEndDialog(
-          isWhite ? 'white' : isBlack ? 'black' : 'spectator',
-          GameStatus.DRAW,
-          gameState,
-        )
-      }
+      endGame(GameStatus.DRAW)
     } else if (data.action === 'drawOfferDeactivated') {
       setDrawRequest(undefined)
+    } else if (data.action === 'surrender') {
+      endGame(data.gameStatus as GameStatus.BLACK_WIN | GameStatus.WHITE_WIN)
     }
   }
 
@@ -172,7 +163,11 @@ const useChessGame = (
     sendMessage({ action: 'draw' })
   }
 
-  return { gameState, makeMove, status, drawAction, drawRequest }
+  const surrender = () => {
+    sendMessage({ action: 'surrender' })
+  }
+
+  return { gameState, makeMove, status, drawAction, drawRequest, surrender }
 }
 
 export default useChessGame

@@ -43,12 +43,14 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
             res = await self.make_move(move)
         elif action == 'draw':
             res = await self.draw()
+        elif action == 'surrender':
+            res = await self.surrender()
         else:
             return # Do nothing if the action is invalid
 
         if res['action'] == 'error':
             await self.send(text_data=json.dumps(res))
-        elif res['action'] in ['drawOffer', 'drawAccepted', 'drawOfferDeactivated', 'newMove']:
+        elif res['action'] in ['drawOffer', 'drawAccepted', 'drawOfferDeactivated', 'newMove', 'surrender']:
             # Send data to other users
             await self.channel_layer.group_send(self.game_group_name, {
                 'type': 'new_message',
@@ -57,6 +59,24 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
 
     async def new_message(self, event):
         await self.send(text_data=event['message'])
+
+    @database_sync_to_async
+    def surrender(self):
+        try:
+            game = ChessGame.objects.get(id=self.game_id, status=ChessGame.GameStatus.ONGOING)
+        except ChessGame.DoesNotExist:
+            return {'action': 'error', 'error': 'Invalid game'}
+        
+        if game.user_white.id == self.user.id: # self.user is white
+            status = ChessGame.GameStatus.BLACK_WIN
+        elif game.user_black.id == self.user.id: # self.user is black
+            status = ChessGame.GameStatus.WHITE_WIN
+        else:
+            return {'action': 'error', 'error': 'You cannot surrender'}
+        
+        game.status = status
+        game.save()
+        return {'action': 'surrender', 'gameStatus': status}
 
     @database_sync_to_async
     def draw(self):
