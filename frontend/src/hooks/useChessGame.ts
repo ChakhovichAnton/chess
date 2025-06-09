@@ -45,7 +45,9 @@ const useChessGame = (
       setGameState(game)
       if (game.drawOfferUser) {
         setDrawRequest(game.drawOfferUser)
-        addNotification('New draw request', 'info')
+        if (game.drawOfferUser.id !== userRef.current?.id) {
+          addNotification('New draw request', 'info')
+        }
       }
     } else if (data.action === 'newMove') {
       const newMove = data.newMove as Move
@@ -87,7 +89,9 @@ const useChessGame = (
     } else if (data.action === 'drawOffer') {
       const maker = data.by as User
       setDrawRequest(maker)
-      addNotification('New draw request', 'info')
+      if (maker.id !== userRef.current?.id) {
+        addNotification('New draw request', 'info')
+      }
     } else if (data.action === 'drawAccepted') {
       const user = userRef.current // TODO: refactor code
       const gameState = gameStateRef.current

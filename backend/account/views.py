@@ -4,15 +4,12 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.views import TokenObtainPairView
 
-from django.views.decorators.csrf import csrf_exempt
-from django.utils.decorators import method_decorator
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
 
 from .serializers import LoginTokenObtainPairSerializer, UserSerializer
 
-@method_decorator(csrf_exempt, name='dispatch')
 class RegisterView(APIView):
     permission_classes = [AllowAny]
 
@@ -31,8 +28,8 @@ class RegisterView(APIView):
         except ValidationError as e:
             return Response({"error": e.messages}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = User.objects.create_user(username=username, password=password)
-        user.save()
+        # Create user in database
+        User.objects.create_user(username=username, password=password)
 
         return Response(status=status.HTTP_201_CREATED)
 
