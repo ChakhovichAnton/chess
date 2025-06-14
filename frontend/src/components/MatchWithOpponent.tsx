@@ -1,22 +1,34 @@
 import { useNavigate } from 'react-router-dom'
 import useWebSocket from '../hooks/useWebSocket'
 import Dialog from './dialog/Dialog'
+import { useCallback, useState } from 'react'
 
 const MatchWithOpponent = () => {
   const navigate = useNavigate()
-  const { connect, disconnect, status } = useWebSocket(
+  const [connectWebSocket, setConnectWebSocket] = useState(false)
+
+  const onMessage = useCallback(
+    (event: MessageEvent) => {
+      navigate(`/game/${JSON.parse(event.data).gameId}`)
+    },
+    [navigate],
+  )
+
+  const { disconnect, status } = useWebSocket(
     'match',
-    (event) => navigate(`/game/${JSON.parse(event.data).gameId}`), // onMessage
+    onMessage,
+    connectWebSocket,
   )
 
   const handleConnectClick = () => {
     if (status == 'error' || status === 'disconnected') {
-      connect()
+      setConnectWebSocket(true)
     }
   }
 
   const handleDisconnectClick = () => {
     if (status === 'connected') {
+      setConnectWebSocket(false)
       disconnect()
     }
   }

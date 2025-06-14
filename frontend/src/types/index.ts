@@ -14,6 +14,8 @@ export enum GameStatus {
   DRAW = 'D',
 }
 
+export type GameEndStatus = Exclude<GameStatus, GameStatus.ONGOING>
+
 export interface Move {
   createdAt: string
   game: number
@@ -42,6 +44,10 @@ export interface PaginatedGames {
 export interface GameWithMoves extends Omit<Game, 'moveCount'> {
   chessMoves: Move[]
   drawOfferUser: null | User // null means that there is no active draw offer
+}
+
+export interface FinishedGameWithMoves extends GameWithMoves {
+  status: GameEndStatus
 }
 
 export type BoardOrientation = 'white' | 'black'

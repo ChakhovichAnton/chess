@@ -1,5 +1,12 @@
-import { useState, useEffect, useRef } from 'react'
-import { GameWithMoves, GameStatus, Move, User } from '../types'
+import { useState, useEffect, useRef, useCallback } from 'react'
+import {
+  GameWithMoves,
+  GameStatus,
+  Move,
+  User,
+  FinishedGameWithMoves,
+  GameEndStatus,
+} from '../types'
 import { validateChessMove } from '../utils/validators/chess'
 import { isAxiosError } from 'axios'
 import api from '../utils/axios'
@@ -10,12 +17,8 @@ import { useNotification } from '../context/notification'
 type Status = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
 
 const useChessGame = (
+  onGameEnd: (game: FinishedGameWithMoves, user?: User) => void,
   gameId?: number,
-  openGameEndDialog?: (
-    userType: 'black' | 'white' | 'spectator',
-    result: Exclude<GameStatus, GameStatus.ONGOING>,
-    gameState?: GameWithMoves,
-  ) => void,
 ) => {
   const { user } = useAuth()
   const { addNotification } = useNotification()
@@ -37,87 +40,78 @@ const useChessGame = (
     userRef.current = user
   }, [user])
 
-  const endGame = (status: Exclude<GameStatus, GameStatus.ONGOING>) => {
-    const user = userRef.current
-    const gameState = gameStateRef.current
-    const isWhite = gameState && gameState.userWhite.id === user?.id
-    const isBlack = gameState && gameState.userBlack.id === user?.id
-
-    setStatus('finished')
-    setGameState((prev) => {
-      if (!prev) return
-      return { ...prev, status } satisfies GameWithMoves
-    })
-    if (openGameEndDialog) {
-      openGameEndDialog(
-        isWhite ? 'white' : isBlack ? 'black' : 'spectator',
-        status,
-        gameState,
-      )
-    }
-  }
-
-  const onMessage = (event: MessageEvent<unknown>) => {
-    const data = JSON.parse(event.data as string)
-
-    if (data.action === 'gameState') {
-      const game = data.gameState as GameWithMoves
-      setGameState(game)
-      if (game.drawOfferUser) {
-        setDrawRequest(game.drawOfferUser)
-        if (game.drawOfferUser.id !== userRef.current?.id) {
-          addNotification('New draw request', 'info')
+  const onMessage = useCallback(
+    (event: MessageEvent<unknown>) => {
+      const endGame = (status: GameEndStatus) => {
+        setStatus('finished')
+        setGameState((prev) => (prev ? { ...prev, status } : undefined))
+        if (gameStateRef.current) {
+          onGameEnd({ ...gameStateRef.current, status }, userRef.current)
         }
       }
-    } else if (data.action === 'newMove') {
-      const newMove = data.newMove as Move
-      const gameStatus = data.gameStatus as GameStatus
 
-      setGameState((prev) => {
-        if (!prev) return
-        const moveIsValid = validateChessMove(prev.fen, newMove.moveText)
-
-        // If move is invalid, reload the page
-        if (!moveIsValid) window.location.reload()
-
-        return {
-          ...prev,
-          chessMoves: [...prev.chessMoves, newMove],
-          fen: data.fen as string,
-        } satisfies GameWithMoves
-      })
-
-      // If the game has ended
-      if (gameStatus !== GameStatus.ONGOING) {
-        endGame(gameStatus)
+      const newDrawRequest = (maker: User | null) => {
+        if (maker) {
+          setDrawRequest(maker)
+          if (maker.id !== userRef.current?.id) {
+            addNotification('New draw request', 'info')
+          }
+        }
       }
-    } else if (data.action === 'error') {
-      const errorMessage = data.error as string
-      addNotification(errorMessage, 'error')
-    } else if (data.action === 'drawOffer') {
-      const maker = data.by as User
-      setDrawRequest(maker)
-      if (maker.id !== userRef.current?.id) {
-        addNotification('New draw request', 'info')
-      }
-    } else if (data.action === 'drawAccepted') {
-      endGame(GameStatus.DRAW)
-    } else if (data.action === 'drawOfferDeactivated') {
-      setDrawRequest(undefined)
-    } else if (data.action === 'surrender') {
-      endGame(data.gameStatus as GameStatus.BLACK_WIN | GameStatus.WHITE_WIN)
-    }
-  }
 
-  const onClose = () => {
+      const data = JSON.parse(event.data as string)
+
+      if (data.action === 'gameState') {
+        const game = data.gameState as GameWithMoves
+        setGameState(game)
+        newDrawRequest(game.drawOfferUser)
+      } else if (data.action === 'newMove') {
+        const newMove = data.newMove as Move
+        const gameStatus = data.gameStatus as GameStatus
+
+        setGameState((prev) => {
+          if (!prev) return
+          const moveIsValid = validateChessMove(prev.fen, newMove.moveText)
+
+          // If move is invalid, set state to undefined
+          if (!moveIsValid) {
+            setStatus('error')
+            return
+          }
+
+          return {
+            ...prev,
+            chessMoves: [...prev.chessMoves, newMove],
+            fen: data.fen as string,
+          } satisfies GameWithMoves
+        })
+
+        // If the game has ended
+        if (gameStatus !== GameStatus.ONGOING) endGame(gameStatus)
+      } else if (data.action === 'error') {
+        addNotification(data.error as string, 'error')
+      } else if (data.action === 'drawOffer') {
+        newDrawRequest(data.by as User)
+      } else if (data.action === 'drawAccepted') {
+        endGame(GameStatus.DRAW)
+      } else if (data.action === 'drawOfferDeactivated') {
+        setDrawRequest(undefined)
+      } else if (data.action === 'surrender') {
+        endGame(data.gameStatus as GameStatus.BLACK_WIN | GameStatus.WHITE_WIN)
+      }
+    },
+    [addNotification, onGameEnd],
+  )
+
+  const onClose = useCallback(() => {
     setStatus('loading')
     setGameState(undefined)
-  }
+  }, [])
 
-  const onError = () => {
+  const onError = useCallback(() => {
     setStatus('error')
     setGameState(undefined)
-  }
+  }, [])
 
   const { sendMessage } = useWebSocket(
     `game/${gameId}`,

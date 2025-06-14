@@ -1,6 +1,6 @@
 import { FC } from 'react'
 import { FaChessKnight } from 'react-icons/fa'
-import { GameStatus, User } from '../../types'
+import { GameEndStatus, GameStatus, User } from '../../types'
 import { useDialog } from '../../context/dialog'
 
 type DialogType = 'win' | 'lose' | 'draw' | 'spectator'
@@ -20,7 +20,7 @@ const UserDescription: FC<UserDescriptionProps> = ({ user, isWhite }) => {
 
 interface GameEndDialogProps {
   userType: 'black' | 'white' | 'spectator'
-  result: Exclude<GameStatus, GameStatus.ONGOING>
+  result: GameEndStatus
   white?: User
   black?: User
 }

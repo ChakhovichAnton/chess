@@ -6,7 +6,7 @@ import Chessboard from '../components/chess/Chessboard'
 import useChessGame from '../hooks/useChessGame'
 import { validateInteger } from '../utils/validators/integer'
 import MoveTable from '../components/chess/moveTable/MoveTable'
-import { GameStatus, GameWithMoves } from '../types'
+import { FinishedGameWithMoves, GameStatus, User } from '../types'
 import { useDialog } from '../context/dialog'
 import { GameEndDialog } from '../components/dialog/GameEndDialog'
 import { FaHandshake } from 'react-icons/fa'
@@ -14,7 +14,7 @@ import Tooltip from '../components/Tooltip'
 import { FaFlag } from 'react-icons/fa'
 import { useAuth } from '../context/auth'
 import ConfirmationDialog from '../components/dialog/ConfirmationDialog'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 
 const ChessGamePage = () => {
   // Validate gameId
@@ -24,23 +24,24 @@ const ChessGamePage = () => {
   const { openDialog } = useDialog()
   const [surrenderDialogIsOpen, setSurrenderDialogIsOpen] = useState(false)
 
-  const openGameEndDialog = (
-    userType: 'black' | 'white' | 'spectator',
-    result: Exclude<GameStatus, GameStatus.ONGOING>,
-    gameState?: GameWithMoves,
-  ) => {
-    openDialog(
-      <GameEndDialog
-        userType={userType}
-        white={gameState?.userWhite}
-        black={gameState?.userBlack}
-        result={result}
-      />,
-    )
-  }
+  const openGameEndDialog = useCallback(
+    (game: FinishedGameWithMoves, user?: User) => {
+      const isWhite = game.userWhite.id === user?.id
+      const isBlack = game.userBlack.id === user?.id
+      openDialog(
+        <GameEndDialog
+          userType={isWhite ? 'white' : isBlack ? 'black' : 'spectator'}
+          white={game.userWhite}
+          black={game.userBlack}
+          result={game.status}
+        />,
+      )
+    },
+    [openDialog],
+  )
 
   const { gameState, makeMove, status, drawAction, drawRequest, surrender } =
-    useChessGame(gameId, openGameEndDialog)
+    useChessGame(openGameEndDialog, gameId)
 
   if (status === 'notFound' || gameId === undefined) return NotFound()
   if (status === 'error') return ErrorPage()
