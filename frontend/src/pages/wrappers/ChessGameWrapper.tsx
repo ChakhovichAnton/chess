@@ -1,16 +1,27 @@
 import { FC, PropsWithChildren } from 'react'
 import { useParams } from 'react-router-dom'
-import NotFound from '../specialPages/NotFound'
 import { validateInteger } from '../../utils/validators/integer'
 import { ChessGameProvider } from '../../context/chessGame'
+import { useAuth } from '../../context/auth'
 
-const ChessGameWrapper: FC<PropsWithChildren> = ({ children }) => {
-  // Validate userId
+interface ChessGameWrapperProps extends PropsWithChildren {
+  userFrom: 'params' | 'auth'
+}
+
+const ChessGameWrapper: FC<ChessGameWrapperProps> = ({
+  userFrom,
+  children,
+}) => {
   const { id: userIdString } = useParams()
-  const userId = validateInteger(userIdString)
-  if (userId === undefined) return NotFound()
+  const { user } = useAuth()
 
-  return <ChessGameProvider userId={userId}>{children}</ChessGameProvider>
+  return (
+    <ChessGameProvider
+      userId={userFrom === 'params' ? validateInteger(userIdString) : user?.id}
+    >
+      {children}
+    </ChessGameProvider>
+  )
 }
 
 export default ChessGameWrapper

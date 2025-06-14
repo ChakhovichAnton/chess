@@ -20,7 +20,9 @@ const App = () => {
           path="/"
           element={
             <DefaultLayout>
-              <LandingPage />
+              <ChessGameWrapper userFrom="auth">
+                <LandingPage />
+              </ChessGameWrapper>
             </DefaultLayout>
           }
         />
@@ -42,7 +44,7 @@ const App = () => {
           path="/profile/:id"
           element={
             <DefaultLayout>
-              <ChessGameWrapper>
+              <ChessGameWrapper userFrom="params">
                 <ProfilePage />
               </ChessGameWrapper>
             </DefaultLayout>

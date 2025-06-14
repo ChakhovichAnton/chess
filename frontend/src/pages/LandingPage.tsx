@@ -2,35 +2,20 @@ import MatchWithOpponent from '../components/MatchWithOpponent'
 import { useAuth } from '../context/auth'
 import FloatingChessPieces from '../components/floatingChessPieces/FloatingChessPieces'
 import { NotificationProvider } from '../context/notification'
-import { useEffect, useState } from 'react'
 import ChessGameTable from '../components/chessGameTable/ChessGameTable'
 import { MdKeyboardArrowRight } from 'react-icons/md'
-import { Game, PaginatedGames } from '../types'
-import api from '../utils/axios'
 import StaticChessboard from '../components/chess/StaticChessboard'
+import { useChessGame } from '../context/chessGame'
 
 const LandingPage = () => {
   const { user, loading: authLoading } = useAuth()
-  const [games, setGames] = useState<Game[]>([])
-  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    const getGames = async () => {
-      if (authLoading || !user) return
-
-      try {
-        const res = await api.get(`/api/chess/games/user/${user.id}/?page=1`)
-        const data = res.data as PaginatedGames
-        setGames(data.results)
-      } catch {
-        // Intentionally empty
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    getGames()
-  }, [authLoading, user])
+  const { status, gamePageData } = useChessGame()
+  const showGameTable =
+    user &&
+    gamePageData &&
+    status === 'success' &&
+    gamePageData.games.length > 0
 
   return (
     <div className="flex justify-center px-2 min-h-full w-full">
@@ -62,10 +47,10 @@ const LandingPage = () => {
             <StaticChessboard showBoardScreenWidthPx={768} />
           </div>
         </div>
-        {user && !loading && games.length > 0 && (
+        {showGameTable && (
           <div className="mt-16 bg-white rounded-md">
             <h2 className="text-3xl font-semibold px-5 py-2">Previous Games</h2>
-            <ChessGameTable games={games} userId={user.id} />
+            <ChessGameTable games={gamePageData.games} userId={user.id} />
             <a
               className="border-t-[1px] w-full px-5 py-2 flex justify-between hover:bg-gray-100 rounded-b-md"
               href={`/profile/${user.id}`}

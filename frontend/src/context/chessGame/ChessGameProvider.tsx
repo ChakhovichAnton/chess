@@ -6,7 +6,7 @@ import api from '../../utils/axios'
 import { isAxiosError } from 'axios'
 
 interface ChessGameProviderProps extends PropsWithChildren {
-  userId: number
+  userId?: number
 }
 
 export const ChessGameProvider = (props: ChessGameProviderProps) => {

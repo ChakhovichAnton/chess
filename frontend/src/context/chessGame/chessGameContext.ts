@@ -8,7 +8,7 @@ export const ChessGameContext = createContext<ChessGameContextType | undefined>(
 export const useChessGame = () => {
   const context = useContext(ChessGameContext)
   if (!context) {
-    throw new Error('useChessGamne must be used within a ChessGameContext')
+    throw new Error('useChessGame must be used within a ChessGameContext')
   }
   return context
 }
