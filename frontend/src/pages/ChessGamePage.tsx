@@ -14,7 +14,7 @@ import { FaFlag } from 'react-icons/fa'
 import { useAuth } from '../context/auth'
 import ConfirmationDialog from '../components/dialog/ConfirmationDialog'
 import { useCallback, useState } from 'react'
-import { userIsAPlayer } from '../utils/chess'
+import { userIsAPlayer } from '../utils/chess/chess'
 import DrawOfferSection from '../components/chess/DrawOfferSection'
 import ChessGameButton from '../components/chess/ChessGameButton'
 

@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { GameWithMoves } from '../../types'
 import { useAuth } from '../../context/auth'
-import { userIsAPlayer } from '../../utils/chess'
+import { userIsAPlayer } from '../../utils/chess/chess'
 
 interface DrawOfferSectionProps {
   gameState: GameWithMoves

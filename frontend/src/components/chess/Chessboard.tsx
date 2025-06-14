@@ -1,5 +1,5 @@
 import { Chessboard as ReactChessboard } from 'react-chessboard'
-import { BoardOrientation, GameWithMoves } from '../../types'
+import { GameWithMoves } from '../../types'
 import { FC, useEffect, useState } from 'react'
 import { Chess } from 'chess.js'
 import {
@@ -9,19 +9,16 @@ import {
 } from 'react-chessboard/dist/chessboard/types'
 import { useAuth } from '../../context/auth'
 import GamePlayerProfile from './GamePlayerProfile'
-import { getCapturedPieces } from '../../utils/chess'
+import {
+  getCapturedPieces,
+  getDestinationsOfLegalMove as getStyledDestinationsOfLegalMove,
+  pieceBelogsToPlayer,
+} from '../../utils/chess/chess'
 import ChessGameButton from './ChessGameButton'
 import { HiArrowsUpDown } from 'react-icons/hi2'
 import { FiTarget } from 'react-icons/fi'
-
-const SELECTED_SQUARE_COLOR = 'rgba(187, 190, 133, 1)'
-const MOVABLE_SQUARE_STYLE = {
-  background: {
-    isCapture: 'radial-gradient(circle, rgba(0,0,0,0.3) 30%, transparent 90%)',
-    notCapture: 'radial-gradient(circle, rgba(0,0,0,0.3) 15%, transparent 20%)',
-  },
-  borderRadius: '50%',
-}
+import useChessBoardSettings from '../../hooks/useChessBoardSettings'
+import { SELECTED_SQUARE_COLOR } from '../../utils/chess/boardStyles'
 
 interface ChessboardProps {
   game: GameWithMoves
@@ -34,15 +31,17 @@ const Chessboard: FC<ChessboardProps> = (props) => {
 
   const [chess, setChess] = useState(new Chess(props.game.fen))
   const [isPlayerTurn, setIsPlayerTurn] = useState(false)
-  // Default to white while setting the actual orientation in the useEffect
-  const [boardOrientation, setBoardOrientation] =
-    useState<BoardOrientation>('white')
-  const [boardSize, setBoardSize] = useState(400)
   const [squareStyles, setSquareStyles] = useState<
     CustomSquareStyles | undefined
   >(undefined)
   const [selectedSquare, setSelectedSquare] = useState<Square | null>(null)
-  const [showValidMoves, setShowValidMoves] = useState(true)
+  const {
+    boardOrientation,
+    boardSize,
+    showValidMoves,
+    toggleShowValidMoves,
+    toggleBoardOrientation,
+  } = useChessBoardSettings(props.game)
 
   useEffect(() => {
     const newChess = new Chess(props.game.fen)
@@ -54,23 +53,8 @@ const Chessboard: FC<ChessboardProps> = (props) => {
       (newChess.turn() === 'w' && isWhite)
 
     setChess(newChess)
-    setBoardOrientation(isBlack ? 'black' : 'white')
     setIsPlayerTurn(isPlayerTurn)
   }, [props.game, user])
-
-  useEffect(() => {
-    const updateSize = () => {
-      const maxHeight = Math.max(window.innerHeight - 225, 300)
-      const maxWidth = Math.max(window.innerWidth - 100, 300)
-
-      const newSize = Math.min(maxHeight, maxWidth)
-      setBoardSize(newSize)
-    }
-    updateSize()
-
-    window.addEventListener('resize', updateSize)
-    return () => window.removeEventListener('resize', updateSize)
-  }, [])
 
   const resetSquareSelections = () => {
     setSquareStyles(undefined)
@@ -101,12 +85,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
 
   const isDraggablePiece = ({ piece }: { piece: Piece }) => {
     if (loading || !user) return false
-
-    // Checking if the piece belongs to the player
-    const isBlack = user.id === props.game.userBlack.id && piece.startsWith('b')
-    const isWhite = user.id === props.game.userWhite.id && piece.startsWith('w')
-
-    return isPlayerTurn && (isBlack || isWhite)
+    return isPlayerTurn && pieceBelogsToPlayer(piece, props.game, user)
   }
 
   const onSquareClick = (square: Square) => {
@@ -131,21 +110,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
       return
     }
 
-    const possibleMoves = chess.moves({ square, verbose: true })
-
-    const customSquares: CustomSquareStyles = {}
-    possibleMoves.forEach((move) => {
-      const isCapture = chess.get(move.to).type
-
-      customSquares[move.to] = {
-        background:
-          MOVABLE_SQUARE_STYLE.background[
-            isCapture ? 'isCapture' : 'notCapture'
-          ],
-        borderRadius: MOVABLE_SQUARE_STYLE.borderRadius,
-      }
-    })
-
+    const customSquares = getStyledDestinationsOfLegalMove(chess, square)
     setSquareStyles(customSquares)
     setSelectedSquare(square)
   }
@@ -192,16 +157,12 @@ const Chessboard: FC<ChessboardProps> = (props) => {
       <div className="flex flex-col gap-2">
         <ChessGameButton
           tooltipText="Toggle Board Direction"
-          onClick={() =>
-            setBoardOrientation((prev) =>
-              prev === 'black' ? 'white' : 'black',
-            )
-          }
+          onClick={toggleBoardOrientation}
           icon={HiArrowsUpDown}
         />
         <ChessGameButton
           tooltipText={showValidMoves ? 'Hide Valid Moves' : 'Show Valid Moves'}
-          onClick={() => setShowValidMoves((prev) => !prev)}
+          onClick={toggleShowValidMoves}
           icon={FiTarget}
         />
       </div>

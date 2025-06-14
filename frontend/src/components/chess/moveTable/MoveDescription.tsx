@@ -1,7 +1,7 @@
 import { FC } from 'react'
 import { Move } from '../../../types'
 import { ChessPieceIcon } from '../ChessPieceIcon'
-import { moveTextToPiece } from '../../../utils/chess'
+import { moveTextToPiece } from '../../../utils/chess/chess'
 
 interface MoveDescriptionProps {
   move: Move
