@@ -27,8 +27,10 @@ const useChessGame = (
     undefined,
   )
 
-  // Undefined means that there is no draw request
-  const [drawRequest, setDrawRequest] = useState<User | undefined>(undefined)
+  const addNotificationRef = useRef(addNotification)
+  useEffect(() => {
+    addNotificationRef.current = addNotification
+  }, [addNotification])
 
   // Additional refs to access the values in the onMessage handler
   const userRef = useRef<User | undefined>(undefined)
@@ -51,11 +53,8 @@ const useChessGame = (
       }
 
       const newDrawRequest = (maker: User | null) => {
-        if (maker) {
-          setDrawRequest(maker)
-          if (maker.id !== userRef.current?.id) {
-            addNotification('New draw request', 'info')
-          }
+        if (maker && maker.id !== userRef.current?.id) {
+          addNotificationRef.current('New draw request', 'info')
         }
       }
 
@@ -89,18 +88,23 @@ const useChessGame = (
         // If the game has ended
         if (gameStatus !== GameStatus.ONGOING) endGame(gameStatus)
       } else if (data.action === 'error') {
-        addNotification(data.error as string, 'error')
+        addNotificationRef.current(data.error as string, 'error')
       } else if (data.action === 'drawOffer') {
         newDrawRequest(data.by as User)
+        setGameState((prev) =>
+          prev ? { ...prev, drawOfferUser: data.by } : undefined,
+        )
       } else if (data.action === 'drawAccepted') {
         endGame(GameStatus.DRAW)
       } else if (data.action === 'drawOfferDeactivated') {
-        setDrawRequest(undefined)
+        setGameState((prev) =>
+          prev ? { ...prev, drawOfferUser: null } : undefined,
+        )
       } else if (data.action === 'surrender') {
         endGame(data.gameStatus as GameStatus.BLACK_WIN | GameStatus.WHITE_WIN)
       }
     },
-    [addNotification, onGameEnd],
+    [onGameEnd],
   )
 
   const onClose = useCallback(() => {
@@ -153,7 +157,11 @@ const useChessGame = (
   }
 
   const drawAction = () => {
-    setDrawRequest((prev) => (prev ? undefined : userRef.current))
+    setGameState((prev) => {
+      if (!prev) return
+      const drawOfferUser = prev.drawOfferUser ? null : userRef.current
+      return { ...prev, drawOfferUser: drawOfferUser ?? null }
+    })
     sendMessage({ action: 'draw' })
   }
 
@@ -161,7 +169,7 @@ const useChessGame = (
     sendMessage({ action: 'surrender' })
   }
 
-  return { gameState, makeMove, status, drawAction, drawRequest, surrender }
+  return { gameState, makeMove, status, drawAction, surrender }
 }
 
 export default useChessGame

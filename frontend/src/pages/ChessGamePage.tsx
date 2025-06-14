@@ -40,8 +40,10 @@ const ChessGamePage = () => {
     [openDialog],
   )
 
-  const { gameState, makeMove, status, drawAction, drawRequest, surrender } =
-    useChessGame(openGameEndDialog, gameId)
+  const { gameState, makeMove, status, drawAction, surrender } = useChessGame(
+    openGameEndDialog,
+    gameId,
+  )
 
   if (status === 'notFound' || gameId === undefined) return NotFound()
   if (status === 'error') return ErrorPage()
@@ -84,14 +86,14 @@ const ChessGamePage = () => {
           </div>
         ) : (
           <>
-            {drawRequest && (
+            {gameState.drawOfferUser && (
               <div className="bg-background-gray px-1 py-2 text-center space-y-1">
                 <p className="text-white">
-                  {drawRequest.username} has requested for a draw
+                  {gameState.drawOfferUser.username} has requested for a draw
                 </p>
                 {userIsAPlayer && (
                   <>
-                    {drawRequest.id === user.id ? (
+                    {gameState.drawOfferUser.id === user.id ? (
                       <button
                         onClick={drawAction}
                         className="hover:cursor-pointer bg-red-500 px-2 py-1 rounded-md w-fit h-fit"
@@ -124,7 +126,7 @@ const ChessGamePage = () => {
                     <FaFlag size={20} />
                   </button>
                 </Tooltip>
-                {!drawRequest && (
+                {!gameState.drawOfferUser && (
                   <Tooltip text="Request Draw">
                     <button
                       onClick={drawAction}
