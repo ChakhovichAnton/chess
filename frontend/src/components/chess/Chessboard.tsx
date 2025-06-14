@@ -8,10 +8,11 @@ import {
   Square,
 } from 'react-chessboard/dist/chessboard/types'
 import { useAuth } from '../../context/auth'
-import ToggleBoardDirectionButton from './ToggleBoardDirectionButton'
-import ToggleValidMovesButton from './ToggleValidMovesButton'
 import GamePlayerProfile from './GamePlayerProfile'
 import { getCapturedPieces } from '../../utils/chess'
+import ChessGameButton from './ChessGameButton'
+import { HiArrowsUpDown } from 'react-icons/hi2'
+import { FiTarget } from 'react-icons/fi'
 
 const SELECTED_SQUARE_COLOR = 'rgba(187, 190, 133, 1)'
 const MOVABLE_SQUARE_STYLE = {
@@ -189,10 +190,19 @@ const Chessboard: FC<ChessboardProps> = (props) => {
         />
       </div>
       <div className="flex flex-col gap-2">
-        <ToggleBoardDirectionButton setBoardOrientation={setBoardOrientation} />
-        <ToggleValidMovesButton
-          setShowValidMoves={setShowValidMoves}
-          showValidMoves={showValidMoves}
+        <ChessGameButton
+          tooltipText="Toggle Board Direction"
+          onClick={() =>
+            setBoardOrientation((prev) =>
+              prev === 'black' ? 'white' : 'black',
+            )
+          }
+          icon={HiArrowsUpDown}
+        />
+        <ChessGameButton
+          tooltipText={showValidMoves ? 'Hide Valid Moves' : 'Show Valid Moves'}
+          onClick={() => setShowValidMoves((prev) => !prev)}
+          icon={FiTarget}
         />
       </div>
     </div>

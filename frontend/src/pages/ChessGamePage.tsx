@@ -10,11 +10,13 @@ import { FinishedGameWithMoves, GameStatus, User } from '../types'
 import { useDialog } from '../context/dialog'
 import { GameEndDialog } from '../components/dialog/GameEndDialog'
 import { FaHandshake } from 'react-icons/fa'
-import Tooltip from '../components/Tooltip'
 import { FaFlag } from 'react-icons/fa'
 import { useAuth } from '../context/auth'
 import ConfirmationDialog from '../components/dialog/ConfirmationDialog'
 import { useCallback, useState } from 'react'
+import { userIsAPlayer } from '../utils/chess'
+import DrawOfferSection from '../components/chess/DrawOfferSection'
+import ChessGameButton from '../components/chess/ChessGameButton'
 
 const ChessGamePage = () => {
   // Validate gameId
@@ -49,9 +51,7 @@ const ChessGamePage = () => {
   if (status === 'error') return ErrorPage()
   if (status === 'loading' || !gameState) return Loading()
 
-  const userIsAPlayer =
-    user &&
-    (gameState.userBlack.id === user.id || gameState.userWhite.id === user.id)
+  const isPlayer = user && userIsAPlayer(gameState, user)
 
   return (
     <div className="mx-auto flex flex-col lg:flex-row max-w-6xl px-1 xl:px-0 w-full gap-x-20 gap-y-5 items-stretch">
@@ -59,8 +59,8 @@ const ChessGamePage = () => {
         isOpen={surrenderDialogIsOpen}
         onClose={() => setSurrenderDialogIsOpen(false)}
         onConfirm={surrender}
-        title={'Are you sure you want to surrender?'}
-        message={'This action cannot be undone.'}
+        title="Are you sure you want to surrender?"
+        message="This action cannot be undone."
       />
       <div className="flex-1 flex justify-center">
         <Chessboard
@@ -86,55 +86,23 @@ const ChessGamePage = () => {
           </div>
         ) : (
           <>
-            {gameState.drawOfferUser && (
-              <div className="bg-background-gray px-1 py-2 text-center space-y-1">
-                <p className="text-white">
-                  {gameState.drawOfferUser.username} has requested for a draw
-                </p>
-                {userIsAPlayer && (
-                  <>
-                    {gameState.drawOfferUser.id === user.id ? (
-                      <button
-                        onClick={drawAction}
-                        className="hover:cursor-pointer bg-red-500 px-2 py-1 rounded-md w-fit h-fit"
-                      >
-                        Cancel
-                      </button>
-                    ) : (
-                      <button
-                        onClick={drawAction}
-                        className="hover:cursor-pointer bg-green-500 px-2 py-1 rounded-md w-fit h-fit"
-                      >
-                        Accept
-                      </button>
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-
-            {userIsAPlayer && (
+            <DrawOfferSection gameState={gameState} drawAction={drawAction} />
+            {isPlayer && (
               <div className="flex justify-between mx-2 mt-2">
-                <Tooltip text="Surrender">
-                  <button
-                    onClick={(event) => {
-                      event.stopPropagation()
-                      setSurrenderDialogIsOpen(true)
-                    }}
-                    className="hover:cursor-pointer bg-background-gray text-white p-0.5 rounded-md w-fit h-fit"
-                  >
-                    <FaFlag size={20} />
-                  </button>
-                </Tooltip>
+                <ChessGameButton
+                  tooltipText="Surrender"
+                  onClick={(event) => {
+                    event.stopPropagation()
+                    setSurrenderDialogIsOpen(true)
+                  }}
+                  icon={FaFlag}
+                />
                 {!gameState.drawOfferUser && (
-                  <Tooltip text="Request Draw">
-                    <button
-                      onClick={drawAction}
-                      className="hover:cursor-pointer bg-background-gray text-white p-0.5 rounded-md w-fit h-fit"
-                    >
-                      <FaHandshake size={20} />
-                    </button>
-                  </Tooltip>
+                  <ChessGameButton
+                    tooltipText="Request Draw"
+                    onClick={drawAction}
+                    icon={FaHandshake}
+                  />
                 )}
               </div>
             )}

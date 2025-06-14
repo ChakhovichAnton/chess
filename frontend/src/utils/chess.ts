@@ -1,5 +1,6 @@
 import { Chess, PieceSymbol } from 'chess.js'
 import { CHESS_PIECES } from '../constants'
+import { GameWithMoves, User } from '../types'
 
 export const moveTextToPiece = (moveText: string): PieceSymbol => {
   switch (moveText[0]) {
@@ -56,4 +57,10 @@ export const getCapturedPieces = (game: Chess) => {
   }
 
   return { capturedByWhite, capturedByBlack }
+}
+
+export const userIsAPlayer = (gameState: GameWithMoves, user: User) => {
+  return (
+    gameState.userBlack.id === user.id || gameState.userWhite.id === user.id
+  )
 }
