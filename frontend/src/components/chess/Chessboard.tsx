@@ -152,7 +152,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
   const { capturedByWhite, capturedByBlack } = getCapturedPieces(chess)
 
   return (
-    <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light w-fit">
+    <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light w-fit h-fit">
       <div className="space-y-1">
         <GamePlayerProfile
           player={

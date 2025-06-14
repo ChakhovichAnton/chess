@@ -8,11 +8,13 @@ import { validateInteger } from '../utils/validators/integer'
 import MoveTable from '../components/chess/moveTable/MoveTable'
 import { GameStatus, GameWithMoves } from '../types'
 import { useDialog } from '../context/dialog'
-import { GameEndDialog } from '../components/chess/GameEndDialog'
+import { GameEndDialog } from '../components/dialog/GameEndDialog'
 import { FaHandshake } from 'react-icons/fa'
 import Tooltip from '../components/Tooltip'
 import { FaFlag } from 'react-icons/fa'
 import { useAuth } from '../context/auth'
+import ConfirmationDialog from '../components/dialog/ConfirmationDialog'
+import { useState } from 'react'
 
 const ChessGamePage = () => {
   // Validate gameId
@@ -20,6 +22,7 @@ const ChessGamePage = () => {
   const { id: gameIdString } = useParams()
   const gameId = validateInteger(gameIdString)
   const { openDialog } = useDialog()
+  const [surrenderDialogIsOpen, setSurrenderDialogIsOpen] = useState(false)
 
   const openGameEndDialog = (
     userType: 'black' | 'white' | 'spectator',
@@ -49,6 +52,13 @@ const ChessGamePage = () => {
 
   return (
     <div className="mx-auto flex flex-col lg:flex-row max-w-6xl px-1 xl:px-0 w-full gap-x-20 gap-y-5 items-stretch">
+      <ConfirmationDialog
+        isOpen={surrenderDialogIsOpen}
+        onClose={() => setSurrenderDialogIsOpen(false)}
+        onConfirm={surrender}
+        title={'Are you sure you want to surrender?'}
+        message={'This action cannot be undone.'}
+      />
       <div className="flex-1 flex justify-center">
         <Chessboard
           game={gameState}
@@ -104,7 +114,10 @@ const ChessGamePage = () => {
               <div className="flex justify-between mx-2 mt-2">
                 <Tooltip text="Surrender">
                   <button
-                    onClick={surrender}
+                    onClick={(event) => {
+                      event.stopPropagation()
+                      setSurrenderDialogIsOpen(true)
+                    }}
                     className="hover:cursor-pointer bg-background-gray text-white p-0.5 rounded-md w-fit h-fit"
                   >
                     <FaFlag size={20} />

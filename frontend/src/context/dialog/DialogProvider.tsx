@@ -1,5 +1,5 @@
 import { useState, PropsWithChildren, FC, ReactNode } from 'react'
-import Dialog from '../../components/Dialog'
+import Dialog from '../../components/dialog/Dialog'
 import { DialogContext } from './dialogContext'
 
 export const DialogProvider: FC<PropsWithChildren> = ({ children }) => {

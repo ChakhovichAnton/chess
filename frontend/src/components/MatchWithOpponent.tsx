@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import useWebSocket from '../hooks/useWebSocket'
-import Dialog from './Dialog'
+import Dialog from './dialog/Dialog'
 
 const MatchWithOpponent = () => {
   const navigate = useNavigate()
