@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import NotFound from './pages/specialPages/NotFound'
-import ProtectedRoute from './components/ProtectedRoute'
+import ProtectedRoute from './pages/wrappers/ProtectedRoute'
+import ChessGameWrapper from './pages/wrappers/ChessGameWrapper'
 import ChessGamePage from './pages/ChessGamePage'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
@@ -41,7 +42,9 @@ const App = () => {
           path="/profile/:id"
           element={
             <DefaultLayout>
-              <ProfilePage />
+              <ChessGameWrapper>
+                <ProfilePage />
+              </ChessGameWrapper>
             </DefaultLayout>
           }
         />

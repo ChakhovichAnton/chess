@@ -45,3 +45,5 @@ export interface GameWithMoves extends Omit<Game, 'moveCount'> {
 }
 
 export type BoardOrientation = 'white' | 'black'
+
+export type PageStatus = 'notFound' | 'error' | 'loading' | 'success'

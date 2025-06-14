@@ -1,31 +1,23 @@
 import { useParams } from 'react-router-dom'
 import NotFound from './specialPages/NotFound'
-import ErrorPage from './specialPages/ErrorPage'
-import Loading from './specialPages/Loading'
 import { validateInteger } from '../utils/validators/integer'
-import { useEffect, useState } from 'react'
-import api from '../utils/axios'
-import { User } from '../types'
 import { CgProfile } from 'react-icons/cg'
-import Pagination from '../components/Pagination'
-import ChessGameTable from '../components/chessGameTable/ChessGameTable'
-import useGetGameHistory from '../hooks/useGetGameHistory'
+import ChessGameHistory from '../components/chessGameTable/ChessGameHistory'
+import { useEffect, useState } from 'react'
+import { PageStatus, User } from '../types'
+import api from '../utils/axios'
+import Loading from './specialPages/Loading'
+import ErrorPage from './specialPages/ErrorPage'
 import { isAxiosError } from 'axios'
-
-type Status = 'notFound' | 'error' | 'loading' | 'success'
+import { useChessGame } from '../context/chessGame'
 
 const ProfilePage = () => {
-  // Validate gameId
   const { id: userIdString } = useParams()
   const userId = validateInteger(userIdString)
 
-  const [status, setStatus] = useState<Status>('loading')
+  const [status, setStatus] = useState<PageStatus>('loading')
   const [username, setUsername] = useState<string | undefined>(undefined)
-  const {
-    gamePageData,
-    status: gameHistoryStatus,
-    getGames,
-  } = useGetGameHistory(userId)
+  const { gamePageData } = useChessGame()
 
   useEffect(() => {
     if (userId === undefined) return
@@ -67,36 +59,7 @@ const ProfilePage = () => {
             )}
           </div>
         </div>
-        {gamePageData && (
-          <div className="bg-background-gray p-4 flex flex-col gap-2 rounded">
-            <h2 className="text-3xl font-semibold text-white">Game History</h2>
-            {gameHistoryStatus === 'notFound' ? (
-              <p className="text-center text-white">No games played yet</p>
-            ) : gameHistoryStatus === 'error' ? (
-              <p className="text-center text-white">
-                Error: something went wrong
-              </p>
-            ) : (
-              <>
-                <ChessGameTable
-                  games={gamePageData.games}
-                  userId={userId}
-                  disabled={gameHistoryStatus === 'loading'}
-                />
-                {gamePageData.pageCount > 1 && (
-                  <Pagination
-                    disabled={gameHistoryStatus === 'loading'}
-                    curPage={gamePageData.page}
-                    pageCount={gamePageData.pageCount}
-                    onPageChange={async (newPage: number) => {
-                      await getGames(newPage)
-                    }}
-                  />
-                )}
-              </>
-            )}
-          </div>
-        )}
+        <ChessGameHistory userId={userId} />
       </div>
     </div>
   )

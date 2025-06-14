@@ -1,26 +1,23 @@
-import { useState, useEffect, useCallback } from 'react'
-import api from '../utils/axios'
-import { Game, PaginatedGames } from '../types'
+import { useEffect, useState, PropsWithChildren, useCallback } from 'react'
+import { PageStatus, PaginatedGames } from '../../types'
+import { ChessGameContext } from './chessGameContext'
+import { GamePageData } from './chessGameTypes'
+import api from '../../utils/axios'
 import { isAxiosError } from 'axios'
 
-interface GamePageData {
-  games: Game[]
-  page: number
-  pageCount: number
-  gameCount: number
+interface ChessGameProviderProps extends PropsWithChildren {
+  userId: number
 }
 
-type Status = 'loading' | 'success' | 'notFound' | 'error'
-
-const useGetGameHistory = (userId?: number) => {
-  const [status, setStatus] = useState<Status>('loading')
+export const ChessGameProvider = (props: ChessGameProviderProps) => {
+  const [status, setStatus] = useState<PageStatus>('loading')
   const [gamePageData, setGamePageData] = useState<GamePageData | undefined>(
     undefined,
   )
 
   const getGames = useCallback(
     async (page: number = 1) => {
-      if (userId === undefined) {
+      if (props.userId === undefined) {
         setStatus('notFound')
         return
       }
@@ -28,7 +25,7 @@ const useGetGameHistory = (userId?: number) => {
       setStatus('loading')
       try {
         const res = await api.get(
-          `/api/chess/games/user/${userId}/?page=${page}`,
+          `/api/chess/games/user/${props.userId}/?page=${page}`,
         )
         const data = res.data as PaginatedGames
         if (data.results.length > 0 && data.currentPage) {
@@ -50,14 +47,16 @@ const useGetGameHistory = (userId?: number) => {
         }
       }
     },
-    [userId],
+    [props.userId],
   )
 
   useEffect(() => {
     getGames()
   }, [getGames])
 
-  return { status, getGames, gamePageData }
+  return (
+    <ChessGameContext.Provider value={{ status, gamePageData, getGames }}>
+      {props.children}
+    </ChessGameContext.Provider>
+  )
 }
-
-export default useGetGameHistory
