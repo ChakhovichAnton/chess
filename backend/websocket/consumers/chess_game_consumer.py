@@ -129,10 +129,11 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
         with transaction.atomic():
             try:
                 game = ChessGame.objects.get(id=self.game_id, status=ChessGame.GameStatus.ONGOING)
-            except ChessGame.DoesNotExist:
+                previous_moves = ChessMove.objects.filter(game=game).order_by('created_at')
+            except:
                 return {'action': 'error', 'error': 'Invalid game'}
             
-            board = validate_chess_move(game, move, self.user.id)
+            board = validate_chess_move(game, previous_moves, move, self.user.id)
             if board is None:
                 return {'action': 'error', 'error': 'Invalid move'}
 

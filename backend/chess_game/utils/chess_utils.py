@@ -2,15 +2,19 @@ import chess
 
 from ..models import ChessGame
 
-def validate_chess_move(game, move, user_id):
-    try:
-        board = chess.Board(game.fen) # TODO: take previous moves into account as the game can for example end due to repetition
-        isWhiteTurn = board.turn == chess.WHITE
+def validate_chess_move(game, previous_moves, move, user_id):
+    board = chess.Board()
 
-        if isWhiteTurn and user_id == game.user_white.id:
-            board.push_san(move)
-            return board
-        elif user_id == game.user_black.id and not isWhiteTurn:
+    try:
+        # Taking previous moves into account as the game can for example end due to repetition
+        for previous_move in previous_moves:
+            board.push_san(previous_move.move_text)
+
+        isWhiteTurn = board.turn == chess.WHITE
+        user_is_white = user_id == game.user_white.id
+        user_is_black = user_id == game.user_black.id
+
+        if (isWhiteTurn and user_is_white) or (user_is_black and not isWhiteTurn):
             board.push_san(move)
             return board
         else:
