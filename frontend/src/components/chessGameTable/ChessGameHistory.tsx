@@ -22,7 +22,6 @@ const ChessGameHistory: FC<ChessGameHistoryProps> = ({ userId }) => {
           <ChessGameTable
             games={gamePageData.games}
             userId={userId}
-            disabled={status === 'loading'}
           />
           {gamePageData.pageCount > 1 && (
             <Pagination
