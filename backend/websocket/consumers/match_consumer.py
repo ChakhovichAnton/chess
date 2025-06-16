@@ -4,7 +4,7 @@ from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from chess_game.models import WaitingUserForGame, ChessGame
+from chess_game.models import WaitingUserForGame, ChessGame, ChessClock
 
 class MatchConsumer(AsyncWebsocketConsumer):
     """Matches two users and creates a game of chess between the users"""
@@ -28,8 +28,6 @@ class MatchConsumer(AsyncWebsocketConsumer):
                     "message": json.dumps({"gameId": game.id}),
                 })
                 await self.send(text_data=json.dumps({"gameId": game.id}))
-        else:
-            await self.close()
 
     async def disconnect(self, close_code):
         """Removes the user from the database when they disconnect"""
@@ -73,4 +71,5 @@ class MatchConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def create_chess_game(self, user_white_id, user_black_id):
         game = ChessGame.objects.create(user_white_id=user_white_id, user_black_id=user_black_id)
+        ChessClock.objects.create(game=game, start_time_ms=30000, white_time_ms=30000, black_time_ms=30000)
         return game

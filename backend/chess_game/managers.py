@@ -9,7 +9,7 @@ class ChessGameManager(Manager):
         from .models import ChessMove, DrawOffers
 
         try:
-            game = self.select_related('user_white', 'user_black').prefetch_related(
+            game = self.select_related('user_white', 'user_black', 'clock').prefetch_related(
                 Prefetch('chess_moves', queryset=ChessMove.objects.all().order_by('created_at'))
             ).get(id=game_id)
         except ObjectDoesNotExist:

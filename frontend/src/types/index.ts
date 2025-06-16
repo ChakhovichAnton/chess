@@ -16,12 +16,30 @@ export enum GameStatus {
 
 export type GameEndStatus = Exclude<GameStatus, GameStatus.ONGOING>
 
+export enum ClockStatus {
+  WHITE_RUNNING = 'W',
+  BLACK_RUNNING = 'B',
+  PAUSED = 'P',
+}
+
 export interface Move {
   createdAt: string
   game: number
   id: number
   moveText: string
   user: number
+  userTimeLeftMs: number
+}
+
+export interface ChessClock {
+  id: number
+  game: number
+  startTimeMs: number
+  incrementMs: number
+  lastStartedAt: string
+  running: ClockStatus
+  whiteTimeMs: number // The current number of milliseconds on the clock of the black white
+  blackTimeMs: number // The current number of milliseconds on the clock of the black player
 }
 
 export interface Game {
@@ -32,6 +50,7 @@ export interface Game {
   createdAt: string
   fen: string
   status: GameStatus
+  clock: ChessClock
 }
 
 export interface PaginatedGames {
@@ -53,3 +72,6 @@ export interface FinishedGameWithMoves extends GameWithMoves {
 export type BoardOrientation = 'white' | 'black'
 
 export type PageStatus = 'notFound' | 'error' | 'loading' | 'success'
+
+export type ChessGameHookStatus = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
+

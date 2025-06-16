@@ -1,6 +1,8 @@
 import chess
+from django.utils import timezone
 
-from ..models import ChessGame
+from ..models import ChessGame, ChessClock
+from .time import timedelta_to_ms
 
 def validate_chess_move(game, previous_moves, move, user_id):
     board = chess.Board()
@@ -33,3 +35,17 @@ def get_chess_game_status_from_board(board):
         elif outcome.winner == chess.BLACK:
             status = ChessGame.GameStatus.BLACK_WIN
     return status
+
+def game_should_end_due_to_time(clock: ChessClock):
+    if clock.running == ChessClock.RunningStatus.PAUSED:
+        return
+
+    now = timezone.now()
+    elapsed_time_ms = timedelta_to_ms(now - clock.last_started_at)
+    white_time_left_ms = clock.white_time_ms - elapsed_time_ms
+    black_time_left_ms = clock.black_time_ms - elapsed_time_ms
+
+    if clock.running == ChessClock.RunningStatus.WHITE and white_time_left_ms <= 0:
+        return ChessGame.GameStatus.BLACK_WIN
+    elif clock.running == ChessClock.RunningStatus.BLACK and black_time_left_ms <= 0:
+        return ChessGame.GameStatus.WHITE_WIN

@@ -128,6 +128,11 @@ const Chessboard: FC<ChessboardProps> = (props) => {
             boardOrientation === 'black' ? capturedByWhite : capturedByBlack
           }
           isWhite={boardOrientation === 'black'}
+          chessClockMs={
+            boardOrientation === 'black'
+              ? props.game.clock.whiteTimeMs
+              : props.game.clock.blackTimeMs
+          }
         />
         <ReactChessboard
           position={chess.fen()}
@@ -152,6 +157,11 @@ const Chessboard: FC<ChessboardProps> = (props) => {
             boardOrientation === 'white' ? capturedByWhite : capturedByBlack
           }
           isWhite={boardOrientation === 'white'}
+          chessClockMs={
+            boardOrientation === 'white'
+              ? props.game.clock.whiteTimeMs
+              : props.game.clock.blackTimeMs
+          }
         />
       </div>
       <div className="flex flex-col gap-2">
