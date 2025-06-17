@@ -7,16 +7,17 @@ import {
   FinishedGameWithMoves,
   GameEndStatus,
   ChessGameHookStatus,
-  ClockStatus,
   ChessClock,
 } from '../types'
 import { validateChessMove } from '../utils/validators/chess'
 import { isAxiosError } from 'axios'
-import api from '../utils/axios'
 import useWebSocket from './useWebSocket'
 import { useAuth } from '../context/auth'
 import { useNotification } from '../context/notification'
 import useChessClock from './useChessClock'
+import useSyncRef from './useSyncRef'
+import { getWhiteOrBlackCurrentTime } from '../utils/chess/clock'
+import { getChessGame } from '../services/ChessGameService'
 
 const useChessGame = (
   onGameEnd: (game: FinishedGameWithMoves, user?: User) => void,
@@ -28,22 +29,12 @@ const useChessGame = (
   const [gameState, setGameState] = useState<GameWithMoves | undefined>(
     undefined,
   )
-
   const clockCheckIntervalRef = useRef<number | undefined>(undefined)
-  const addNotificationRef = useRef(addNotification)
-  useEffect(() => {
-    addNotificationRef.current = addNotification
-  }, [addNotification])
 
   // Additional refs to access the values in the onMessage handler
-  const userRef = useRef<User | undefined>(undefined)
-  const gameStateRef = useRef<GameWithMoves | undefined>(undefined)
-  useEffect(() => {
-    gameStateRef.current = gameState
-  }, [gameState])
-  useEffect(() => {
-    userRef.current = user
-  }, [user])
+  const userRef = useSyncRef(user)
+  const gameStateRef = useSyncRef(gameState)
+  const addNotificationRef = useSyncRef(addNotification)
 
   const onMessage = useCallback(
     (event: MessageEvent<unknown>) => {
@@ -70,24 +61,10 @@ const useChessGame = (
         const game = data.gameState as GameWithMoves
 
         // Set correct clock time
-        if (game.clock.running !== ClockStatus.PAUSED) {
-          const targetDate = new Date(game.clock.lastStartedAt)
-          const diffMs = new Date().getTime() - targetDate.getTime()
-
-          switch (game.clock.running) {
-            case ClockStatus.WHITE_RUNNING: {
-              const whiteTimeMs = Math.max(game.clock.whiteTimeMs - diffMs, 0)
-              game.clock.whiteTimeMs = whiteTimeMs
-              break
-            }
-            case ClockStatus.BLACK_RUNNING: {
-              const blackTimeMs = Math.max(game.clock.blackTimeMs - diffMs, 0)
-              game.clock.blackTimeMs = blackTimeMs
-            }
-          }
-        }
-
-        setGameState(game)
+        setGameState({
+          ...game,
+          clock: { ...game.clock, ...getWhiteOrBlackCurrentTime(game.clock) },
+        })
         newDrawRequest(game.drawOfferUser)
         // Set page status to finished in case the game has already finished
         if (game.status !== GameStatus.ONGOING) setStatus('finished')
@@ -110,7 +87,7 @@ const useChessGame = (
             chessMoves: [...prev.chessMoves, newMove],
             fen: data.fen as string,
             clock: data.clock as ChessClock,
-          } satisfies GameWithMoves
+          }
         })
 
         // If the game has ended
@@ -132,7 +109,7 @@ const useChessGame = (
         endGame(data.gameStatus as GameStatus.BLACK_WIN | GameStatus.WHITE_WIN)
       }
     },
-    [onGameEnd],
+    [addNotificationRef, gameStateRef, onGameEnd, userRef],
   )
 
   const onClose = useCallback(() => {
@@ -155,13 +132,11 @@ const useChessGame = (
 
   // Check if game is live or finished
   useEffect(() => {
-    if (status !== 'loading') return
+    if (status !== 'loading' || gameId === undefined) return
 
     const initChessGame = async () => {
       try {
-        const result = await api.get(`/api/chess/game/${gameId}/`)
-        const game = result.data as GameWithMoves
-
+        const game = await getChessGame(gameId)
         if (game.status === GameStatus.ONGOING) {
           setStatus('live')
         } else {

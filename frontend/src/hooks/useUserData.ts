@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { PageStatus, User } from '../types'
 import { isAxiosError } from 'axios'
-import api from '../utils/axios'
+import { getUser } from '../services/UserService'
 
 const useUserData = (userId?: number) => {
   const [status, setStatus] = useState<PageStatus>('loading')
@@ -13,8 +13,8 @@ const useUserData = (userId?: number) => {
     const getUserData = async () => {
       setStatus('loading')
       try {
-        const res = await api.get(`/api/account/user/${userId}/`)
-        setUser(res.data as User)
+        const user = await getUser(userId)
+        setUser(user)
         setStatus('success')
       } catch (e) {
         if (isAxiosError(e) && e.status === 404) {

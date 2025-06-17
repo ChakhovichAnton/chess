@@ -1,9 +1,9 @@
 import { useEffect, useState, PropsWithChildren, useCallback } from 'react'
-import { PageStatus, PaginatedGames } from '../../types'
+import { PageStatus } from '../../types'
 import { ChessGameContext } from './chessGameContext'
 import { GamePageData } from './chessGameTypes'
-import api from '../../utils/axios'
 import { isAxiosError } from 'axios'
+import { getPaginatedGames } from '../../services/ChessGameService'
 
 interface ChessGameProviderProps extends PropsWithChildren {
   userId?: number
@@ -24,10 +24,7 @@ export const ChessGameProvider = (props: ChessGameProviderProps) => {
 
       setStatus('loading')
       try {
-        const res = await api.get(
-          `/api/chess/games/user/${props.userId}/?page=${page}`,
-        )
-        const data = res.data as PaginatedGames
+        const data = await getPaginatedGames(props.userId, page)
         if (data.results.length > 0 && data.currentPage) {
           setGamePageData({
             games: data.results,
