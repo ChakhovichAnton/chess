@@ -39,6 +39,7 @@ class ChessMoveSerializer(CamelSnakeSerializer):
         fields = '__all__'
 
 class ChessClockSerializer(CamelSnakeSerializer):
+    time_control = ChessGameTimeControlSerializer(read_only=True)
     class Meta:
         model = ChessClock
         fields = '__all__'

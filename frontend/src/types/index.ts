@@ -22,6 +22,8 @@ export enum ClockStatus {
   PAUSED = 'P',
 }
 
+export type TimeControlCategory = 'bullet' | 'rapid' | 'blitz'
+
 export interface Move {
   createdAt: string
   game: number
@@ -31,15 +33,22 @@ export interface Move {
   userTimeLeftMs: number
 }
 
+export interface TimeControl {
+  category: TimeControlCategory
+  id: 1
+  incrementSeconds: 0
+  minutes: number
+  name: string
+}
+
 export interface ChessClock {
   id: number
   game: number
-  startTimeMs: number
-  incrementMs: number
   lastStartedAt: string
   running: ClockStatus
   whiteTimeMs: number // The current number of milliseconds on the clock of the black white
   blackTimeMs: number // The current number of milliseconds on the clock of the black player
+  timeControl: TimeControl
 }
 
 export interface Game {
@@ -73,5 +82,9 @@ export type BoardOrientation = 'white' | 'black'
 
 export type PageStatus = 'notFound' | 'error' | 'loading' | 'success'
 
-export type ChessGameHookStatus = 'loading' | 'live' | 'finished' | 'error' | 'notFound'
-
+export type ChessGameHookStatus =
+  | 'loading'
+  | 'live'
+  | 'finished'
+  | 'error'
+  | 'notFound'
