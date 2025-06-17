@@ -1,7 +1,7 @@
 import re
 from django.contrib.auth.models import User
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
-from chess_game.models import ChessGame, ChessMove, ChessClock
+from chess_game.models import ChessGame, ChessMove, ChessClock, ChessGameTimeControl
 
 def snake_to_camel(snake_str):
     components = snake_str.split('_')
@@ -27,6 +27,11 @@ class CamelSnakeSerializer(ModelSerializer):
             snake_case_key = camel_to_snake(key)
             snake_case_data[snake_case_key] = value
         return super().to_internal_value(snake_case_data)
+    
+class ChessGameTimeControlSerializer(CamelSnakeSerializer):
+    class Meta:
+        model = ChessGameTimeControl
+        fields = '__all__'
 
 class ChessMoveSerializer(CamelSnakeSerializer):
     class Meta:

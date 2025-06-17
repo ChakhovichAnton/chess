@@ -4,6 +4,17 @@ import chess
 
 from .managers import ChessGameManager
 
+class ChessGameTimeControl(models.Model):
+    class Category(models.TextChoices):
+        BULLET = 'bullet', 'Bullet'
+        BLITZ = 'blitz', 'Blitz'
+        RAPID = 'rapid', 'Rapid'
+
+    name = models.CharField(max_length=50, unique=True)
+    minutes = models.PositiveIntegerField()
+    increment_seconds = models.PositiveIntegerField()
+    category = models.CharField(max_length=6, choices=Category.choices)
+
 class WaitingUserForGame(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     channel_name = models.CharField(max_length=255, unique=True)
@@ -40,14 +51,11 @@ class ChessClock(models.Model):
     game = models.OneToOneField(ChessGame, on_delete=models.CASCADE, related_name='clock')
     running = models.CharField(max_length=1, choices=RunningStatus, default=RunningStatus.PAUSED)
     last_started_at = models.DateTimeField(null=True, blank=True) # For computing how long the clock has been running
-    start_time_ms = models.BigIntegerField(default=0) # How much each player had at the beginning of the game
+    time_control = models.ForeignKey(ChessGameTimeControl, on_delete=models.PROTECT, related_name='time_control')
 
     # How much time left each player currently has
     white_time_ms = models.BigIntegerField(default=0)
     black_time_ms = models.BigIntegerField(default=0)
-
-    increment_ms = models.PositiveIntegerField(default=0)
-
 
 class DrawOffers(models.Model):
     game = models.ForeignKey(ChessGame, on_delete=models.CASCADE)

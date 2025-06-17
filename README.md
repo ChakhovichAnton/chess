@@ -17,11 +17,6 @@ Start the Docker containers with:
 docker-compose up
 ```
 
-To make a migration of the chess app inside the Docker container, run the following command:
-```bash
-docker-compose exec backend python manage.py makemigrations chess_game
-```
-
 To apply the migrations inside the Docker container, run the following command:
 ```bash
 docker-compose exec backend python manage.py migrate

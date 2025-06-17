@@ -8,7 +8,7 @@ from channels.generic.websocket import AsyncWebsocketConsumer
 from chess_game.models import ChessGame, ChessMove, DrawOffers, ChessClock
 from chess_game.serializers import ChessClockSerializer, ChessGameSerializerWithMoves, ChessMoveSerializer
 from chess_game.utils.chess_utils import game_should_end_due_to_time, validate_chess_move, get_chess_game_status_from_board
-from chess_game.utils.time import timedelta_to_ms
+from chess_game.utils.time import minutes_to_ms, seconds_to_ms, timedelta_to_ms
 from account.serializers import UserSerializer
 
 class ChessGameConsumer(AsyncWebsocketConsumer):
@@ -186,7 +186,7 @@ def make_move(game_id, user_id, move):
         if clock.running == ChessClock.RunningStatus.PAUSED: # The clock is paused on the first move
             clock.running = ChessClock.RunningStatus.BLACK
             clock.last_started_at = now
-            user_time_left_ms = clock.start_time_ms
+            user_time_left_ms = minutes_to_ms(clock.time_control.minutes)
         else:
             elapsed_time_ms = timedelta_to_ms(now - clock.last_started_at)
 
@@ -194,7 +194,7 @@ def make_move(game_id, user_id, move):
             if clock.running == ChessClock.RunningStatus.WHITE:
                 white_time_left_ms = clock.white_time_ms - elapsed_time_ms
                 if white_time_left_ms > 0:
-                    clock.white_time_ms = white_time_left_ms + clock.increment_ms
+                    clock.white_time_ms = white_time_left_ms + seconds_to_ms(clock.time_control.increment_seconds)
                     user_time_left_ms = clock.white_time_ms
                     clock.running = ChessClock.RunningStatus.BLACK
                     clock.last_started_at = now
@@ -205,7 +205,7 @@ def make_move(game_id, user_id, move):
             else: # Black clock is running
                 black_time_left_ms = clock.black_time_ms - elapsed_time_ms
                 if black_time_left_ms > 0:
-                    clock.black_time_ms = black_time_left_ms + clock.increment_ms
+                    clock.black_time_ms = black_time_left_ms + seconds_to_ms(clock.time_control.increment_seconds)
                     user_time_left_ms = clock.black_time_ms
                     clock.running = ChessClock.RunningStatus.WHITE
                     clock.last_started_at = now
@@ -230,7 +230,7 @@ def make_move(game_id, user_id, move):
             game_id=game.id,
             user_id=user_id,
             move_text=move,
-            user_time_left_ms=user_time_left_ms
+            user_time_left_ms=user_time_left_ms,
         )
         new_move.save()
 

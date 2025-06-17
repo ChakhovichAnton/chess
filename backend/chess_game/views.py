@@ -3,8 +3,8 @@ from django.views import View
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 
-from .models import ChessGame
-from .serializers import ChessGameSerializerWithMoves, ChessGameSerializer
+from .models import ChessGame, ChessGameTimeControl
+from .serializers import ChessGameSerializerWithMoves, ChessGameSerializer, ChessGameTimeControlSerializer
 
 class GameView(View):
     def get(self, request, id):
@@ -13,6 +13,12 @@ class GameView(View):
         if game is None:
             raise Http404
         serializer = ChessGameSerializerWithMoves(game)
+        return JsonResponse(serializer.data, safe=False)
+    
+class ChessGameTimeControlView(View):
+    def get(self, request):
+        time_control = ChessGameTimeControl.objects.all()
+        serializer = ChessGameTimeControlSerializer(time_control, many=True)
         return JsonResponse(serializer.data, safe=False)
 
 class UserGameView(View):

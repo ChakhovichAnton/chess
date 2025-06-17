@@ -4,7 +4,8 @@ from channels.db import database_sync_to_async
 from channels.layers import get_channel_layer
 from channels.generic.websocket import AsyncWebsocketConsumer
 
-from chess_game.models import WaitingUserForGame, ChessGame, ChessClock
+from chess_game.models import ChessGameTimeControl, WaitingUserForGame, ChessGame, ChessClock
+from chess_game.utils.time import minutes_to_ms
 
 class MatchConsumer(AsyncWebsocketConsumer):
     """Matches two users and creates a game of chess between the users"""
@@ -70,6 +71,12 @@ def delete_waiting_user(user_id):
 
 @database_sync_to_async
 def create_chess_game(user_white_id, user_black_id):
+    time_control = ChessGameTimeControl.objects.first() # TODO: fetch correct game
+    if time_control == None:
+        return None # TODO: react to none
+
     game = ChessGame.objects.create(user_white_id=user_white_id, user_black_id=user_black_id)
-    ChessClock.objects.create(game=game, start_time_ms=30000, white_time_ms=30000, black_time_ms=30000)
+    time = minutes_to_ms(time_control.minutes)
+
+    ChessClock.objects.create(game=game, white_time_ms=time, black_time_ms=time, time_control=time_control)
     return game
