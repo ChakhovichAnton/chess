@@ -35,8 +35,8 @@ export interface Move {
 
 export interface TimeControl {
   category: TimeControlCategory
-  id: 1
-  incrementSeconds: 0
+  id: number
+  incrementSeconds: number
   minutes: number
   name: string
 }

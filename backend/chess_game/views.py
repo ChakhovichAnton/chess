@@ -29,6 +29,7 @@ class UserGameView(View):
 
         games = (
             ChessGame.objects
+            .select_related('clock', 'clock__time_control')
             .filter(Q(user_white_id=id) | Q(user_black_id=id))
             .annotate(move_count=Count('chess_moves'))
             .order_by('-created_at')

@@ -63,6 +63,7 @@ class ChessGameSerializerWithMoves(CamelSnakeSerializer):
 class ChessGameSerializer(CamelSnakeSerializer):
     user_white = UserSerializer()
     user_black = UserSerializer()
+    clock = ChessClockSerializer(read_only=True)
     move_count = SerializerMethodField(read_only=True)
 
     class Meta:

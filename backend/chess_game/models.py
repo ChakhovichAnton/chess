@@ -19,6 +19,7 @@ class WaitingUserForGame(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     channel_name = models.CharField(max_length=255, unique=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    time_control = models.ForeignKey(ChessGameTimeControl, on_delete=models.PROTECT, related_name='game_time_control')
 
 class ChessGame(models.Model):
     objects = ChessGameManager()
