@@ -14,7 +14,7 @@ This repository contains a chess app. Features:
 
 The chess app consists of the following components:
 
-- Django backend with Python
+- Django backend with Python and Django Channels
 - Redis channel layer for Django channels
 - PostgreSQL database
 - React Vite frontend with TypeScript and TailwindCSS
