@@ -22,14 +22,13 @@ import { SELECTED_SQUARE_COLOR } from '../../utils/chess/boardStyles'
 
 interface ChessboardProps {
   game: GameWithMoves
-  isLiveGame: boolean
   makeMove: (move: string) => void
 }
 
-const Chessboard: FC<ChessboardProps> = (props) => {
+const Chessboard: FC<ChessboardProps> = ({ game, makeMove }) => {
   const { user, loading } = useAuth()
 
-  const [chess, setChess] = useState(new Chess(props.game.fen))
+  const [chess, setChess] = useState(new Chess(game.fen))
   const [isPlayerTurn, setIsPlayerTurn] = useState(false)
   const [squareStyles, setSquareStyles] = useState<
     CustomSquareStyles | undefined
@@ -41,12 +40,12 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     showValidMoves,
     toggleShowValidMoves,
     toggleBoardOrientation,
-  } = useChessBoardSettings(props.game)
+  } = useChessBoardSettings(game)
 
   useEffect(() => {
-    const newChess = new Chess(props.game.fen)
-    const isBlack = user?.id === props.game.userBlack.id
-    const isWhite = user?.id === props.game.userWhite.id
+    const newChess = new Chess(game.fen)
+    const isBlack = user?.id === game.userBlack.id
+    const isWhite = user?.id === game.userWhite.id
 
     const isPlayerTurn =
       (newChess.turn() === 'b' && isBlack) ||
@@ -54,7 +53,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
 
     setChess(newChess)
     setIsPlayerTurn(isPlayerTurn)
-  }, [props.game, user])
+  }, [game, user])
 
   const resetSquareSelections = () => {
     setSquareStyles(undefined)
@@ -66,7 +65,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
     if (!isPlayerTurn) return false
 
     try {
-      const gameCopy = new Chess(props.game.fen)
+      const gameCopy = new Chess(game.fen)
 
       // Throws exception if move is invalid
       const move = gameCopy.move({
@@ -74,7 +73,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
         to: targetSquare,
         promotion: 'q',
       })
-      props.makeMove(move.san)
+      makeMove(move.san)
       setIsPlayerTurn(false)
 
       return true
@@ -85,7 +84,7 @@ const Chessboard: FC<ChessboardProps> = (props) => {
 
   const isDraggablePiece = ({ piece }: { piece: Piece }) => {
     if (loading || !user) return false
-    return isPlayerTurn && pieceBelogsToPlayer(piece, props.game, user)
+    return isPlayerTurn && pieceBelogsToPlayer(piece, game, user)
   }
 
   const onSquareClick = (square: Square) => {
@@ -116,22 +115,21 @@ const Chessboard: FC<ChessboardProps> = (props) => {
   }
 
   const { capturedByWhite, capturedByBlack } = getCapturedPieces(chess)
+  const { whiteTimeMs, blackTimeMs } = game.clock
 
   return (
     <div className="flex gap-2 justify-center lg:justify-start p-2 rounded-md bg-background-gray-light w-fit h-fit">
       <div className="space-y-1">
         <GamePlayerProfile
           player={
-            props.game[boardOrientation === 'black' ? 'userWhite' : 'userBlack']
+            game[boardOrientation === 'black' ? 'userWhite' : 'userBlack']
           }
           capturedPieces={
             boardOrientation === 'black' ? capturedByWhite : capturedByBlack
           }
           isWhite={boardOrientation === 'black'}
           chessClockMs={
-            boardOrientation === 'black'
-              ? props.game.clock.whiteTimeMs
-              : props.game.clock.blackTimeMs
+            boardOrientation === 'black' ? whiteTimeMs : blackTimeMs
           }
         />
         <ReactChessboard
@@ -151,16 +149,14 @@ const Chessboard: FC<ChessboardProps> = (props) => {
         />
         <GamePlayerProfile
           player={
-            props.game[boardOrientation === 'white' ? 'userWhite' : 'userBlack']
+            game[boardOrientation === 'white' ? 'userWhite' : 'userBlack']
           }
           capturedPieces={
             boardOrientation === 'white' ? capturedByWhite : capturedByBlack
           }
           isWhite={boardOrientation === 'white'}
           chessClockMs={
-            boardOrientation === 'white'
-              ? props.game.clock.whiteTimeMs
-              : props.game.clock.blackTimeMs
+            boardOrientation === 'white' ? whiteTimeMs : blackTimeMs
           }
         />
       </div>

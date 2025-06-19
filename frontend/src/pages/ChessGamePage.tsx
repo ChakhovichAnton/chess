@@ -64,18 +64,12 @@ const ChessGamePage = () => {
         message="This action cannot be undone."
       />
       <div className="flex-1 flex justify-center">
-        <Chessboard
-          game={gameState}
-          isLiveGame={status === 'live'}
-          makeMove={makeMove}
-        />
+        <Chessboard game={gameState} makeMove={makeMove} />
       </div>
       <div className="flex flex-col justify-between bg-background-gray-light py-2 rounded">
         <div>
           <div className="flex justify-between items-center px-1">
-            <h2 className="text-lg text-white font-medium pb-1">
-              Moves
-            </h2>
+            <h2 className="text-lg text-white font-medium pb-1">Moves</h2>
             <TimeControlIcon timeControl={gameState.clock.timeControl} />
           </div>
           <MoveTable game={gameState} />
