@@ -57,12 +57,11 @@ const useWebSocket = (
         // If event code is 1006, refresh access token and reconnect
         if (closeEvent.code === 1006 && !retryRef.current) {
           setStatus('loading')
-          if (onClose) onClose()
-          await refreshAccessToken()
           await initializeSocket()
           retryRef.current = true
         } else {
           setStatus('disconnected')
+          if (onClose) onClose()
         }
       }
     }
