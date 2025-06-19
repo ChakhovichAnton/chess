@@ -17,6 +17,7 @@ import { useCallback, useState } from 'react'
 import { userIsAPlayer } from '../utils/chess/chess'
 import DrawOfferSection from '../components/chess/DrawOfferSection'
 import ChessGameButton from '../components/chess/ChessGameButton'
+import { TimeControlIcon } from '../components/TimeControlIcon'
 
 const ChessGamePage = () => {
   // Validate gameId
@@ -71,7 +72,12 @@ const ChessGamePage = () => {
       </div>
       <div className="flex flex-col justify-between bg-background-gray-light py-2 rounded">
         <div>
-          <h2 className="text-white font-medium text-center pb-1">Moves</h2>
+          <div className="flex justify-between items-center px-1">
+            <h2 className="text-lg text-white font-medium pb-1">
+              Moves
+            </h2>
+            <TimeControlIcon timeControl={gameState.clock.timeControl} />
+          </div>
           <MoveTable game={gameState} />
         </div>
         {gameState.status !== GameStatus.ONGOING ? (

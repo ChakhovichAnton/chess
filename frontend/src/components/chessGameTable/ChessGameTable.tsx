@@ -2,8 +2,9 @@ import { FC } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Game } from '../../types'
 import { GameStatusDescription } from './GameStatus'
+import { TimeControlIcon } from '../TimeControlIcon'
 
-const TABLE_COLUMNS = ['Status', 'Players', 'Date', 'Moves']
+const TABLE_COLUMNS = ['Status', 'Time Control', 'Players', 'Date', 'Moves']
 
 interface GameTableProps {
   games: Game[]
@@ -44,6 +45,9 @@ const ChessGameTable: FC<GameTableProps> = ({ games, userId }) => {
                   game.status,
                   userId === game.userWhite.id,
                 )}
+              </td>
+              <td className="pl-6 py-2">
+                <TimeControlIcon timeControl={game.clock.timeControl} />
               </td>
               <td className="pl-6 py-2 flex flex-col">
                 <div className="flex items-center gap-1">
