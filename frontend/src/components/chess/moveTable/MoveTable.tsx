@@ -1,7 +1,7 @@
 import { FC, useEffect, useRef } from 'react'
 import { GameWithMoves } from '../../../types'
 import { arrayToPairs } from '../../../utils/arrayIntoPairs'
-import './MoveTable.css'
+import './movetables.css'
 import MoveDescription from './MoveDescription'
 
 interface MoveTableProps {
