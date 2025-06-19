@@ -43,6 +43,7 @@ class ChessGameConsumer(AsyncWebsocketConsumer):
 
     async def receive(self, text_data):
         if not self.user.is_authenticated:
+            await self.close()
             return
 
         data = json.loads(text_data)

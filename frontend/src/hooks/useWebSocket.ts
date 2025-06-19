@@ -34,9 +34,10 @@ const useWebSocket = (
     if (!autoConnect) return
 
     /** Connects to WebSocket only if the connection does not exist */
-    const initializeSocket = () => {
+    const initializeSocket = async () => {
       if (socketRef.current) return
       setStatus('loading')
+      await refreshAccessToken() // Refresch access token before connecting to increase connection length
 
       socketRef.current = new WebSocket(
         `ws://localhost:8000/ws/${path}/?token=${localStorage.getItem(LOCAL_STORAGE_ACCESS_TOKEN)}`,
@@ -58,7 +59,7 @@ const useWebSocket = (
           setStatus('loading')
           if (onClose) onClose()
           await refreshAccessToken()
-          initializeSocket()
+          await initializeSocket()
           retryRef.current = true
         } else {
           setStatus('disconnected')
