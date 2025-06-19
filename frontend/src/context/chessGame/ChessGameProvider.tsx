@@ -3,7 +3,7 @@ import { PageStatus } from '../../types'
 import { ChessGameContext } from './chessGameContext'
 import { GamePageData } from './chessGameTypes'
 import { isAxiosError } from 'axios'
-import { getPaginatedGames } from '../../services/ChessGameService'
+import { getPaginatedGames } from '../../services/chessGameServices'
 
 interface ChessGameProviderProps extends PropsWithChildren {
   userId?: number

@@ -1,30 +1,25 @@
 import { useNavigate } from 'react-router-dom'
 import useWebSocket from '../hooks/useWebSocket'
 import Dialog from './dialog/Dialog'
-import { useCallback, useEffect, useState } from 'react'
-import { getTimeControls } from '../services/ChessGameService'
-import { TimeControl } from '../types'
+import { useCallback, useState } from 'react'
 import { FaChevronRight } from 'react-icons/fa'
+import useTimeControl from '../hooks/useTimeControl'
 
 type DialogStatus = 'closed' | 'selectTime' | 'searching' | 'cancelling'
 
 const MatchWithOpponent = () => {
   const navigate = useNavigate()
   const [dialogStatus, setDialogStatus] = useState<DialogStatus>('closed')
-  const [timeControls, setTimeControls] = useState<TimeControl[] | undefined>(
-    undefined,
-  )
-
-  useEffect(() => {
-    const fetchTimeControls = async () => {
-      setTimeControls(await getTimeControls())
-    }
-    fetchTimeControls()
-  }, [])
+  const { timeControls } = useTimeControl()
 
   const onMessage = useCallback(
     (event: MessageEvent) => {
-      navigate(`/game/${JSON.parse(event.data).gameId}`)
+      const data = JSON.parse(event.data)
+      if (data.action === 'gameId') {
+        navigate(`/game/${data.gameId}`)
+      } else if (data.action === 'disconnect') {
+        setDialogStatus('closed')
+      }
     },
     [navigate],
   )
@@ -44,11 +39,12 @@ const MatchWithOpponent = () => {
 
   const handleTimeControlClick = (timeControlId: number) => {
     setDialogStatus('searching')
-    sendMessage({ timeControlId })
+    sendMessage({ action: 'timeControlId', timeControlId })
   }
 
   const cancelSearchClick = () => {
-    setDialogStatus('closed')
+    setDialogStatus('cancelling')
+    sendMessage({ action: 'disconnect' })
   }
 
   return (
@@ -65,7 +61,13 @@ const MatchWithOpponent = () => {
       </button>
       <Dialog
         isOpen={dialogStatus !== 'closed'}
-        onClose={() => setDialogStatus('closed')}
+        onClose={() => {
+          if (dialogStatus === 'selectTime') {
+            setDialogStatus('closed')
+          } else if (dialogStatus === 'searching') {
+            cancelSearchClick()
+          }
+        }}
         closeDialogButton
       >
         <div className="relative min-h-[50vh] flex flex-col justify-center items-center space-y-6 text-lg font-medium">
@@ -106,10 +108,11 @@ const MatchWithOpponent = () => {
                 <span className="dot-animation"></span>
               </p>
               <button
+                disabled={dialogStatus !== 'searching'}
                 onClick={cancelSearchClick}
                 className="hover:cursor-pointer bg-red-500 hover:brightness-120 px-3 py-1 rounded-xs text-white"
               >
-                Cancel
+                {dialogStatus === 'searching' ? 'Cancel' : 'Cancelling'}
               </button>
             </>
           )}

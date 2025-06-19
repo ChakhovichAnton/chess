@@ -22,31 +22,37 @@ class MatchConsumer(AsyncWebsocketConsumer):
             return
 
         data = json.loads(text_data)
-        time_control_id = data.get('timeControlId')
-        if not isinstance(time_control_id, int):
-            return
-        
-        time_control = await get_time_control(time_control_id)
-        if time_control is None:
-            return
+        action = data.get('action')
 
-        result = await delete_and_return_waiting_user(user.id, time_control_id)
-        if result is None:
-            await create_waiting_user(user.id, time_control_id, self.channel_name)
-        else:
-            game = await create_chess_game(result["user_id"], user.id, time_control)
+        if action == 'timeControlId':
+            time_control_id = data.get('timeControlId')
+            if not isinstance(time_control_id, int):
+                return
+            
+            time_control = await get_time_control(time_control_id)
+            if time_control is None:
+                return
 
-            # Send game id to both users
-            channel_layer = get_channel_layer()
-            await channel_layer.send(result["channel_name"], {
-                "type": "chat.message",
-                "message": json.dumps({"gameId": game.id}),
-            })
-            await self.send(text_data=json.dumps({"gameId": game.id}))
+            result = await delete_and_return_waiting_user(user.id, time_control_id)
+            if result is None:
+                await create_waiting_user(user.id, time_control_id, self.channel_name)
+            else:
+                game = await create_chess_game(result['user_id'], user.id, time_control)
+
+                # Send game id to both users
+                channel_layer = get_channel_layer()
+                await channel_layer.send(result['channel_name'], {
+                    'type': 'chat.message',
+                    'message': json.dumps({'action': 'gameId', 'gameId': game.id}),
+                })
+                await self.send(text_data=json.dumps({'action': 'gameId', 'gameId': game.id}))
+        elif action == 'disconnect':
+            await delete_waiting_user(user.id)
+            await self.send(text_data=json.dumps({'action': 'disconnect'}))
 
     async def disconnect(self, close_code):
-        """Removes the user from the database when they disconnect"""
-        user_id = self.scope["user"].id
+        """Removes the user from the database when they disconnect in-case they have not disconnected themselves"""
+        user_id = self.scope['user'].id
         await delete_waiting_user(user_id)
 
     async def chat_message(self, event):
@@ -54,7 +60,7 @@ class MatchConsumer(AsyncWebsocketConsumer):
         Called when the channel layer of this user receives a message.
         Sends the same message to the client
         """
-        await self.send(text_data=event["message"])
+        await self.send(text_data=event['message'])
         
 @database_sync_to_async
 def delete_and_return_waiting_user(user_id, time_control_id):
