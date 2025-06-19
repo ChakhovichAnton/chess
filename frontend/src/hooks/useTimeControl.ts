@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { TimeControl } from '../types'
-import { getTimeControls } from '../services/chessGameServices'
+import { getTimeControls } from '../services/chessGameService'
 
 const useTimeControl = () => {
   const [timeControls, setTimeControls] = useState<TimeControl[] | undefined>(

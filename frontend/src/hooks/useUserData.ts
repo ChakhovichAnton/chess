@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { PageStatus, User } from '../types'
 import { isAxiosError } from 'axios'
-import { getUser } from '../services/userServices'
+import { getUser } from '../services/userService'
 
 const useUserData = (userId?: number) => {
   const [status, setStatus] = useState<PageStatus>('loading')

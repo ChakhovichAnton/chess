@@ -17,7 +17,7 @@ import { useNotification } from '../context/notification'
 import useChessClock from './useChessClock'
 import useSyncRef from './useSyncRef'
 import { getWhiteOrBlackCurrentTime } from '../utils/chess/clock'
-import { getChessGame } from '../services/chessGameServices'
+import { getChessGame } from '../services/chessGameService'
 
 const useChessGame = (
   onGameEnd: (game: FinishedGameWithMoves, user?: User) => void,
