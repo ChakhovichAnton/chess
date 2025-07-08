@@ -38,7 +38,7 @@ To apply the migrations inside the Docker container, run the following command:
 docker-compose exec backend python manage.py migrate
 ```
 
-To run the frontend, install the dependencies in the `frontend` directory with
+Install the dependencies in the `frontend` directory with:
 ```bash
 npm install
 ```
